@@ -12,6 +12,7 @@ app.use(cookieParser());
 
 //route imports
 import { userRouter } from "./routes/user.routes.js";
+import { caltachAllError } from "./utils/caltachAllError.js";
 
 //route
 app.use("/api/v1/user", userRouter);
@@ -25,3 +26,5 @@ app.get("/", (req, res) => {
 app.listen(port, () => {
   console.log(`app listning at port ${port}`);
 });
+
+app.use(caltachAllError);
