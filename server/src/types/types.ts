@@ -1,3 +1,5 @@
+import { NextFunction, Request, Response } from "express";
+
 export type NewUserRequestBody = {
   id: string;
   name: string;
@@ -23,3 +25,13 @@ enum Gender {
   MALE = "MALE",
   FEMALE = "FEMALE",
 }
+
+export type NewUserControllerType = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => Promise<Response<any, Record<string, any>>> | Promise<any>;
+
+export type adminQueryType = {
+  id: string;
+};

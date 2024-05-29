@@ -32,3 +32,20 @@ enum Gender {
   MALE
   FEMALE
 }
+
+// TODO
+// implement the trim part of "category" from mongoose schema
+// in code
+
+model Product {
+  name     String
+  photo    String
+  price    Float
+  stock    Int
+  category String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([name, category])
+}

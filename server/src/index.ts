@@ -1,5 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import { caltachAllError } from "./utils/caltachAllError.js";
 
 const app = express();
 
@@ -12,10 +13,11 @@ app.use(cookieParser());
 
 //route imports
 import { userRouter } from "./routes/user.routes.js";
-import { caltachAllError } from "./utils/caltachAllError.js";
+import { productRouter } from "./routes/product.routes.js";
 
 //route
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/product", productRouter);
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -23,8 +25,8 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use(caltachAllError);
+
 app.listen(port, () => {
   console.log(`app listning at port ${port}`);
 });
-
-app.use(caltachAllError);

@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
+import { NewUserControllerType } from "../types/types.js";
 
 export const asyncHandler =
-  (callback) => async (req: Request, res: Response, next: NextFunction) => {
+  (callback: NewUserControllerType) =>
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       await callback(req, res, next);
     } catch (error) {
-      console.log(error);
-      next(error);
+      return next(error);
     }
   };
