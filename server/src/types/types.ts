@@ -35,3 +35,12 @@ export type NewUserControllerType = (
 export type adminQueryType = {
   id: string;
 };
+
+// product
+export type NewProductRequestBody = {
+  name: string;
+  // photo: string;
+  price: number;
+  stock: number;
+  category: string;
+};

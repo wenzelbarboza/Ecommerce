@@ -100,7 +100,7 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
   });
 
   if (!user) {
-    throw new ApiError("user does not exis, provide valid id");
+    throw new ApiError("user does not exist, provide valid id");
   }
 
   const deletedUser = await prisma.user.delete({
