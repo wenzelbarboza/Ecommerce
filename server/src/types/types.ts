@@ -44,3 +44,46 @@ export type NewProductRequestBody = {
   stock: number;
   category: string;
 };
+
+export interface productSearchQueryParams {
+  search?: string;
+  sort?: Sort;
+  category?: string;
+  price?: number;
+  page?: number;
+}
+
+enum Sort {
+  ASC = "asc",
+  DESC = "desc",
+}
+
+type allProductProperties = NewProductRequestBody & {
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type allPropertiesUnion = keyof allProductProperties;
+
+export type baseQueryType = {
+  where?: {
+    name?: {
+      contains: string;
+    };
+    price?: {
+      lte: number;
+    };
+    category?: string;
+  };
+  orderBy?: {
+    [K in allPropertiesUnion]?: "asc" | "desc";
+  };
+  take?: number;
+  skip?: number;
+};
+
+export type invalidateOptionTypes = {
+  product?: boolean;
+  order?: boolean;
+  admin?: boolean;
+};
