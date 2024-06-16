@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import type { Address, Order, OrderDetail } from "@prisma/client";
 
 export type NewUserRequestBody = {
   id: string;
@@ -86,4 +87,12 @@ export type invalidateOptionTypes = {
   product?: boolean;
   order?: boolean;
   admin?: boolean;
+  userId?: string;
+  productId?: string | Array<string>;
+  orderId?: string;
+};
+
+export type newOrderRequestBody = Order & {
+  adressInfo: Address;
+  orderDetails: OrderDetail[];
 };
