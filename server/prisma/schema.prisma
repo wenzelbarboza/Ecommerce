@@ -100,3 +100,10 @@ model OrderDetail {
   quantity  Int
   price     Float
 }
+
+model Coupon {
+  id         Int    @id @default(autoincrement())
+  couponCode String @unique @db.VarChar(255)
+  discount   Float
+  minOrder   Float
+}
