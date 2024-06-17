@@ -8,6 +8,9 @@ export const invlidateCache = async ({
   admin,
   order,
   product,
+  userId,
+  orderId,
+  productId,
 }: invalidateOptionTypes) => {
   if (product) {
     const productCacheKeys: Array<string> = [
@@ -15,15 +18,23 @@ export const invlidateCache = async ({
       "cached-all",
       "cached-categories",
     ];
-    const allId = await prisma.product.findMany({
-      select: {
-        id: true,
-      },
-    });
-    allId.forEach((ele) => productCacheKeys.push(String(ele.id)));
+
+    // `product-${id}`
+
+    if (typeof productId == "string") {
+      productCacheKeys.push(`product-${productId}`);
+    }
+
+    if (typeof productId == "object") {
+      productId.forEach((id) => productCacheKeys.push(`product-${id}`));
+    }
+
     myCache.del(productCacheKeys);
   }
   if (order) {
+    const keyList = [`all-orders`, `my-order-${userId}`, `order-${orderId}`];
+
+    myCache.del(keyList);
   }
   if (admin) {
   }

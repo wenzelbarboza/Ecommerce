@@ -259,7 +259,7 @@ export const updateProduct = asyncHandler(
         },
       });
 
-      invlidateCache({ product: true });
+      myCache.del("cached-latest");
 
       return res.status(200).json({
         success: true,

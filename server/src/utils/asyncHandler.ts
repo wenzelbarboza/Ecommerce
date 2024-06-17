@@ -7,6 +7,7 @@ export const asyncHandler =
     try {
       await callback(req, res, next);
     } catch (error) {
+      console.log(error);
       return next(error);
     }
   };
