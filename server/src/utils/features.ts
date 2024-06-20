@@ -39,3 +39,11 @@ export const invlidateCache = async ({
   if (admin) {
   }
 };
+
+export const claculateGrowth = (thisMont: number, lastMonth: number) => {
+  if (lastMonth == 0) {
+    return thisMont;
+  }
+  const percent = ((thisMont - lastMonth) / lastMonth) * 100;
+  return Number(percent);
+};
