@@ -1,15 +1,21 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { PrismaClient } from "@prisma/client";
-import { claculateGrowth } from "../utils/features.js";
+import {
+  calculateAge,
+  calculateCategoryRatio,
+  CalculatelastSixmonthGrowth,
+  claculateGrowth,
+} from "../utils/features.js";
 import { myCache } from "../index.js";
 
 const prisma = new PrismaClient();
 
 export const dashboardsStats = asyncHandler(async (req, res) => {
   let stats = {};
+  const key = "admin-stats";
 
-  if (myCache.has("admin-stats")) {
-    stats = myCache.get("admin-stats");
+  if (myCache.has(key)) {
+    stats = myCache.get(key);
   } else {
     const today = new Date();
     const sixMontsAgo = new Date();
@@ -158,17 +164,14 @@ export const dashboardsStats = asyncHandler(async (req, res) => {
 
     const revenue = allOrders.reduce((acc, order) => acc + order.total, 0);
 
-    const lastSixMonthsTransaction = new Array(6).fill(0);
-    const lastSixMonthsRevenue = new Array(6).fill(0);
-
-    lastSixMonthsOrders.forEach((order) => {
-      const creationDate = order.createdAt;
-      const monthDiff = (today.getMonth() - creationDate.getMonth() + 12) % 12;
-
-      if (monthDiff < 6) {
-        lastSixMonthsTransaction[6 - monthDiff - 1] += 1;
-        lastSixMonthsRevenue[6 - monthDiff - 1] += order.total;
-      }
+    const lastSixMonthsTransaction = CalculatelastSixmonthGrowth({
+      dataObj: lastSixMonthsOrders,
+      length: 6,
+    });
+    const lastSixMonthsRevenue = CalculatelastSixmonthGrowth({
+      dataObj: lastSixMonthsOrders,
+      property: "total",
+      length: 6,
     });
 
     const growthData = {
@@ -192,21 +195,7 @@ export const dashboardsStats = asyncHandler(async (req, res) => {
     };
 
     // calculating the catagory percentage
-    let catagoryCount = {};
-
-    allproducts.forEach((product) => {
-      catagoryCount[product.category] =
-        (catagoryCount[product.category] || 0) + 1;
-    });
-
-    const totalProducts = allproducts.length;
-
-    const catagoryPercentage = {};
-    Object.keys(catagoryCount).forEach((key) => {
-      catagoryPercentage[key] = Math.round(
-        (catagoryCount[key] / totalProducts) * 100
-      );
-    });
+    const catagoryPercentage = calculateCategoryRatio(allproducts);
 
     // getting the gender ratio
     const genderRatio = {
@@ -236,7 +225,7 @@ export const dashboardsStats = asyncHandler(async (req, res) => {
       LatestTransaction: formatedLatestOrderList,
     };
 
-    myCache.set("admin-stats", stats);
+    myCache.set(key, stats);
   }
 
   return res.status(200).json({
@@ -245,6 +234,304 @@ export const dashboardsStats = asyncHandler(async (req, res) => {
     data: stats,
   });
 });
-export const pieChart = asyncHandler(async (req, res) => {});
-export const barChart = asyncHandler(async (req, res) => {});
-export const lineChart = asyncHandler(async (req, res) => {});
+export const pieChart = asyncHandler(async (req, res) => {
+  const key = `admin-pie-charts`;
+  let charts = {};
+
+  if (myCache.has(key)) {
+    charts = myCache.get(key);
+  } else {
+    const outofStockPromise = prisma.product.count({
+      where: {
+        stock: 0,
+      },
+    });
+
+    const allOrderPromis = prisma.order.findMany({
+      select: {
+        tax: true,
+        total: true,
+        discount: true,
+        subtotal: true,
+        shippingCharges: true,
+      },
+    });
+
+    const usersPromise = prisma.user.findMany({
+      select: {
+        dob: true,
+        role: true,
+      },
+    });
+
+    const [
+      ordersPrcessing,
+      ordersShipped,
+      ordersDelivered,
+      allOrderCategories,
+      outOfStockCount,
+      allOrders,
+      users,
+    ] = await Promise.all([
+      prisma.order.count({ where: { status: "Processing" } }),
+      prisma.order.count({ where: { status: "Shipped" } }),
+      prisma.order.count({ where: { status: "Delivered" } }),
+      prisma.product.findMany({
+        select: {
+          category: true,
+        },
+      }),
+      outofStockPromise,
+      allOrderPromis,
+      usersPromise,
+    ]);
+
+    const orderFullfillmentStatus = {
+      ordersPrcessing,
+      ordersShipped,
+      ordersDelivered,
+    };
+
+    const categoryPercentage = calculateCategoryRatio(allOrderCategories);
+
+    const inventoryCount = {
+      outOfStock: outOfStockCount,
+      inStock: allOrderCategories.length - outOfStockCount,
+    };
+
+    const grossIncome = allOrders.map(
+      (item, acc) => acc + (item.total || 0),
+      0
+    );
+    const discount = allOrders.map(
+      (item, acc) => acc + (item.discount || 0),
+      0
+    );
+    const burn = allOrders.map((item, acc) => acc + (item.tax || 0), 0);
+    const productionCost = allOrders.map(
+      (item, acc) => acc + (item.shippingCharges || 0),
+      0
+    );
+
+    const marketingCost = Number(grossIncome) * 0.3;
+
+    const netMargine =
+      Number(grossIncome) -
+      Number(discount) -
+      Number(burn) -
+      Number(productionCost) -
+      Number(marketingCost);
+
+    const revenueDistribution = {
+      netMargine,
+      discount,
+      productionCost,
+      burn,
+      marketingCost,
+    };
+
+    const ageList = users.map((user) => calculateAge(user.dob));
+
+    // TODO use different logic
+    const ageDistribution = ageList.reduce(
+      (acc, age) => {
+        if (age <= 19) {
+          acc.teen = +1;
+        } else if (age <= 65) {
+          acc.audult += 1;
+        } else {
+          acc.old += 1;
+        }
+
+        return acc;
+      },
+      {
+        teen: 0,
+        audult: 0,
+        old: 0,
+      }
+    );
+
+    const adminCount = users.reduce((acc, user) => {
+      if (user.role == "ADMIN") {
+        return acc + 1;
+      } else {
+        return acc;
+      }
+    }, 0);
+
+    const adminCustomer = {
+      admin: adminCount,
+      customer: users.length - adminCount,
+    };
+
+    charts = {
+      orderFullfillmentStatus,
+      categoryPercentage,
+      inventoryCount,
+      revenueDistribution,
+      adminCustomer,
+      ageDistribution,
+    };
+
+    myCache.set(key, charts);
+  }
+  return res.status(200).json({
+    success: true,
+    message: "welcome to this api/v1/dashboard/piechart",
+    data: charts,
+  });
+});
+export const barChart = asyncHandler(async (req, res) => {
+  const key = "adimin-bar-charts";
+  let charts = {};
+  if (myCache.has(key)) {
+    charts = myCache.get(key);
+  } else {
+    const today = new Date();
+    const lastSixMonths = new Date();
+    lastSixMonths.setMonth(lastSixMonths.getMonth() - 6);
+    const lastTwelveMonths = new Date();
+    lastTwelveMonths.setMonth(lastTwelveMonths.getMonth() - 6);
+
+    const twelveMonthsOrderPromise = prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: lastTwelveMonths,
+          lte: today,
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+    });
+    const sixMonthsProductPromise = prisma.product.findMany({
+      where: {
+        createdAt: {
+          gte: lastSixMonths,
+          lte: today,
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+    });
+    const sixMonthUserPromise = prisma.user.findMany({
+      where: {
+        createdAt: {
+          gte: lastSixMonths,
+          lte: today,
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+    });
+
+    const [orders, products, users] = await Promise.all([
+      twelveMonthsOrderPromise,
+      sixMonthsProductPromise,
+      sixMonthUserPromise,
+    ]);
+
+    const twelveMonthsOrderData = CalculatelastSixmonthGrowth({
+      dataObj: orders,
+      length: 12,
+    });
+    const sixMonthsProductData = CalculatelastSixmonthGrowth({
+      dataObj: products,
+      length: 6,
+    });
+    const sixMonthsUsersData = CalculatelastSixmonthGrowth({
+      dataObj: users,
+      length: 6,
+    });
+
+    charts = {
+      orders: twelveMonthsOrderData,
+      products: sixMonthsProductData,
+      users: sixMonthsUsersData,
+    };
+    myCache.set(key, charts);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "bar chart data found",
+    data: charts,
+  });
+});
+export const lineChart = asyncHandler(async (req, res) => {
+  const key = "adimin-line-charts";
+  let charts = {};
+  if (myCache.has(key)) {
+    charts = myCache.get(key);
+  } else {
+    const today = new Date();
+    // const lastSixMonths = new Date();
+    // lastSixMonths.setMonth(lastSixMonths.getMonth() - 6);
+    const lastTwelveMonths = new Date();
+    lastTwelveMonths.setMonth(lastTwelveMonths.getMonth() - 6);
+
+    const baseQuery = {
+      where: {
+        createdAt: {
+          gte: lastTwelveMonths,
+          lte: today,
+        },
+      },
+      select: {
+        createdAt: true,
+      },
+    };
+
+    const twelMonthsOrderPromise = prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: lastTwelveMonths,
+          lte: today,
+        },
+      },
+    });
+
+    const [products, users, orders] = await Promise.all([
+      prisma.product.findMany(baseQuery),
+      prisma.user.findMany(baseQuery),
+      twelMonthsOrderPromise,
+    ]);
+
+    const sixMonthsProductData = CalculatelastSixmonthGrowth({
+      dataObj: products,
+      length: 12,
+    });
+    const sixMonthsUsersData = CalculatelastSixmonthGrowth({
+      dataObj: users,
+      length: 12,
+    });
+
+    const twelveMonthsRevenue = CalculatelastSixmonthGrowth({
+      dataObj: orders,
+      length: 12,
+      property: "total",
+    });
+    const twelveMonthsDiscount = CalculatelastSixmonthGrowth({
+      dataObj: orders,
+      length: 12,
+      property: "discount",
+    });
+
+    charts = {
+      products: sixMonthsProductData,
+      users: sixMonthsUsersData,
+      revene: twelveMonthsRevenue,
+      discount: twelveMonthsDiscount,
+    };
+    myCache.set(key, charts);
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "line chart data found",
+    data: charts,
+  });
+});

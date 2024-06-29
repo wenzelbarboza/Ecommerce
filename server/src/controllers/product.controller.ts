@@ -52,7 +52,7 @@ export const newProduct = asyncHandler(
       },
     });
 
-    await invlidateCache({ product: true });
+    await invlidateCache({ product: true, admin: true });
 
     res.status(201).json({
       success: true,
@@ -189,7 +189,7 @@ export const deleteProduct = asyncHandler(
       console.log("photo deleted");
     });
 
-    invlidateCache({ product: true });
+    invlidateCache({ product: true, admin: true });
 
     return res.status(200).json({
       success: true,

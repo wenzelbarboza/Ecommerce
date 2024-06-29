@@ -8,7 +8,7 @@ import {
 
 const statsRouter = express.Router();
 
-//route user - /api/v1/dashboard
+//route user - /api/v1/dashboard/
 
 statsRouter.get("/stats", dashboardsStats);
 statsRouter.get("/pie", pieChart);
