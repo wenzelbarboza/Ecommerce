@@ -1,5 +1,103 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { buttonVariants } from "../components/ui/button";
+import CartItem from "../components/CartItem";
+
+// TODO: remove this
+type Item = {
+  productId: string;
+  photo: string;
+  name: string;
+  price: number;
+  quantity: number;
+  stock: number;
+};
+
 const Cart = () => {
-  return <div>Cart</div>;
+  const total = 0;
+  const shippingCharges = 0;
+  const subtotal = 0;
+  const discount = 0;
+  const tax = 0;
+  const cartItems = [
+    {
+      productId: "jkfdjslD",
+      photo: "https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg",
+      name: "some book",
+      price: 999,
+      quantity: 1,
+      stock: 20,
+    },
+  ];
+
+  const [couponCode, setCouponCode] = useState("");
+  const [isValidCouponCode, setIsValidCouponCode] = useState(true);
+
+  const decrementHandler = (item: Item) => {
+    console.log("decrementHandler clicked");
+  };
+
+  const incrementHandler = (item: Item) => {
+    console.log("incrementHandler clicked");
+  };
+
+  const deletehandler = (item: Item) => {
+    console.log("deletehandler clicked");
+  };
+
+  return (
+    <div className="flex custom-container">
+      <main className=" flex-[2] no-scrollbar mt-5">
+        {cartItems.map((item) => {
+          return (
+            <CartItem
+              decrementHandler={decrementHandler}
+              deletehandler={incrementHandler}
+              incrementHandler={deletehandler}
+              item={item}
+              key={item.productId}
+            />
+          );
+        })}
+      </main>
+      <aside className=" flex-1 flex mt-10 justify-center relative">
+        <div className="flex flex-col gap-3">
+          <p>Subtotal: ₹{subtotal}</p>
+          <p>Shipping Charges: ₹{shippingCharges}</p>
+          <p>Tax: ₹{tax}</p>
+          <p>
+            Discount: <em className="red"> - ₹{discount}</em>
+          </p>
+          <p>
+            <b>Total: ₹{total}</b>
+          </p>
+
+          <input
+            className=" bg-transparent border-[1px] border-solid border-gray-400 p-1 rounded-sm"
+            type="text"
+            placeholder="Coupon Code"
+            value={couponCode}
+            onChange={(e) => setCouponCode(e.target.value)}
+          />
+
+          {couponCode &&
+            (isValidCouponCode ? (
+              <span className="green">
+                ₹{discount} off using the <code>{couponCode}</code>
+              </span>
+            ) : (
+              <span className="text-red-400">Invalid Coupon</span>
+            ))}
+
+          {cartItems.length > 0 && (
+            <Link className={buttonVariants()} to="/shipping">
+              Checkout
+            </Link>
+          )}
+        </div>
+      </aside>
+    </div>
+  );
 };
 
 export default Cart;

@@ -1,60 +1,76 @@
-import { useState } from "react";
-import {
-  FaLockOpen,
-  FaSearch,
-  FaSign,
-  FaSignOutAlt,
-  FaUser,
-} from "react-icons/fa";
+import { FaSearch, FaSignInAlt, FaSignOutAlt, FaUser } from "react-icons/fa";
 import { FaBagShopping } from "react-icons/fa6";
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
+import { buttonVariants } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 const user = { _id: "", role: "admin" };
 
 const Header = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
   return (
-    <nav className="header">
-      <div className="container flex nav-container">
-        <Link to="/">Home</Link>
-        <div className="header-links">
-          <Link to="/search">
-            <FaSearch />
+    <div className="h-lvh flex flex-col">
+      <nav className=" border-b-[0.5px] border-slate-400 py-2 sticky top-0 z-10 bg-white">
+        <div className="custom-container flex items-center">
+          <Link to="/" className="">
+            Home
           </Link>
-          <Link to="/cart">
-            <FaBagShopping />
-          </Link>
-          <button onClick={() => setIsOpen((prev) => !prev)}>
-            <FaUser />
-          </button>
-          <dialog open={isOpen}>
-            <div>
-              {user?.role == "admin" && (
-                <Link to="/admin/dashboard">
-                  <FaLockOpen />
-                </Link>
-              )}
-            </div>
-            <Link to="/orders">Orders</Link>
-            <button>
-              <FaSignOutAlt />
-            </button>
-          </dialog>
-          {user?._id ? (
-            <>
-              <button>
-                <FaUser />
-              </button>
-            </>
-          ) : (
-            <Link to="/login">
-              <FaSign />
+          <div className="ml-auto flex gap-1">
+            <Link
+              to="/search"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              <FaSearch />
             </Link>
-          )}
+            <Link to="/cart" className={buttonVariants({ variant: "outline" })}>
+              <FaBagShopping />
+            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className={buttonVariants({ variant: "outline" })}
+              >
+                <FaUser />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {user?.role == "admin" && (
+                  <DropdownMenuItem>
+                    <Link to="/admin/dashboard">Admin</Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem>
+                  <Link to="/orders">Orders</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  Sign out
+                  <FaSignOutAlt className="ml-2" />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {user?._id ? (
+              <>
+                <button>
+                  <FaUser />
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className={buttonVariants({ variant: "outline" })}
+              >
+                LogIn <FaSignInAlt className="ml-1" />
+              </Link>
+            )}
+          </div>
         </div>
+      </nav>
+      <div id="identify" className="flex flex-1 ">
+        <Outlet />
       </div>
-    </nav>
+    </div>
   );
 };
 
