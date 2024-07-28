@@ -8,10 +8,28 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useUserStore } from "../zustand/userStore";
+import { signOut } from "firebase/auth";
+import { auth } from "../Firebase";
 
 const user = { _id: "", role: "admin" };
 
 const Header = () => {
+  const userStore = useUserStore();
+
+  console.log("user  is: ", userStore.user);
+
+  const handelSignOut = async () => {
+    try {
+      await signOut(auth);
+      console.log(`user ${userStore.user?.name} signed out`);
+
+      userStore.setUser(null);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="h-lvh flex flex-col">
       <nav className=" border-b-[0.5px] border-slate-400 py-2 sticky top-0 z-10 bg-white">
@@ -44,10 +62,16 @@ const Header = () => {
                 <DropdownMenuItem>
                   <Link to="/orders">Orders</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  Sign out
-                  <FaSignOutAlt className="ml-2" />
-                </DropdownMenuItem>
+                {userStore.user ? (
+                  <>
+                    <DropdownMenuItem onClick={handelSignOut}>
+                      Sign out
+                      <FaSignOutAlt className="ml-2" />
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <></>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             {user?._id ? (

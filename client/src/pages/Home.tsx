@@ -1,5 +1,9 @@
+import toast, { Toaster } from "react-hot-toast";
 import { FaUser } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useGetLatestProd } from "../api/product.api";
+import { CardSkeletonLoader } from "../components/CardSkeletonLoader";
+import ProductCard from "../components/ProductCard";
 import {
   Carousel,
   CarouselContent,
@@ -7,9 +11,27 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../components/ui/carousel";
-import ProductCard from "../components/ProductCard";
+
+// TODO:
+// good loader and skeleton
 
 const Home = () => {
+  const cardHandler = (id: number) => {
+    console.log("this is product id: ", id);
+  };
+
+  const { data, isError, isLoading } = useGetLatestProd();
+
+  console.log("product data is :", data);
+
+  const toatText = () => {
+    toast.error("cannot fetch products");
+  };
+
+  if (isError) {
+    console.log("inside the toast3");
+    toatText();
+  }
   return (
     <div className="custom-container  ">
       <section className="w-full py-6">
@@ -36,13 +58,28 @@ const Home = () => {
         </Link>
       </h1>
       <main className="grid grid-cols-4 gap-1 lg:gap-8">
+        {isLoading
+          ? new Array(5).fill(5).map(() => <CardSkeletonLoader />)
+          : data?.data.map((item) => {
+              return (
+                <ProductCard
+                  key={item.id}
+                  id={Number(item.id)}
+                  handler={cardHandler}
+                  name={item.name}
+                  price={item.price}
+                  photo={item.photo}
+                />
+              );
+            })}
+        {/* <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
         <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
         <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
         <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
         <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
-        <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
-        <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
+        <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" /> */}
       </main>
+      <Toaster position="bottom-center" />
     </div>
   );
 };
