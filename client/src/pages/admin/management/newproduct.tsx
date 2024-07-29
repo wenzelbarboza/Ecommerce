@@ -2,6 +2,9 @@ import { ChangeEvent, useState } from "react";
 import AdminSidebar from "../../../components/admin/AdminSidebar";
 import { useCreateProductMutation } from "../../../api/product.api";
 import { useUserStore } from "../../../zustand/userStore";
+import toast, { Toaster } from "react-hot-toast";
+import { responseToast } from "../../../lib/responseToast";
+import { useNavigate } from "react-router-dom";
 
 const NewProduct = () => {
   const [name, setName] = useState<string>("");
@@ -13,6 +16,8 @@ const NewProduct = () => {
 
   const userStore = useUserStore();
   const createProductMutation = useCreateProductMutation();
+
+  const navigate = useNavigate();
 
   const changeImageHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = e.target.files?.[0];
@@ -43,10 +48,21 @@ const NewProduct = () => {
     formData.set("category", category);
     formData.set("photo", photo);
 
-    createProductMutation.mutate({
-      id: userStore.user?.id as string,
-      formData,
-    });
+    try {
+      const res = await createProductMutation.mutateAsync({
+        id: userStore.user?.id as string,
+        formData,
+      });
+
+      responseToast({
+        res,
+        navigate,
+        url: "/admin/product",
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("error occured");
+    }
   };
 
   return (
@@ -104,10 +120,13 @@ const NewProduct = () => {
             </div>
 
             {photoPrev && <img src={photoPrev} alt="New Image" />}
-            <button type="submit">Create</button>
+            <button type="submit" className="pb-10">
+              Create
+            </button>
           </form>
         </article>
       </main>
+      <Toaster position="bottom-center" />
     </div>
   );
 };
