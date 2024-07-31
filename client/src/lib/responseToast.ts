@@ -4,7 +4,7 @@ import { NavigateFunction } from "react-router-dom";
 import { apiResponseType, productData } from "../types/api.types";
 
 type paramsType = {
-  res: apiResponseType<productData & { toatlPages?: number }>;
+  res: apiResponseType<productData[] & { toatlPages?: number }>;
   navigate: NavigateFunction;
   url: string;
 };

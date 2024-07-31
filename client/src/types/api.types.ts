@@ -28,12 +28,9 @@ export type apiError = {
 export type apiResponseType<T> = {
   success: boolean;
   message: string;
-  data: T[];
+  data: T;
 };
 
-export type apiResponseSearchType<T> = {
-  success: boolean;
-  message: string;
-  data: T[];
+export type apiResponseSearchType<T> = apiResponseType<T> & {
   totalPages: number;
 };

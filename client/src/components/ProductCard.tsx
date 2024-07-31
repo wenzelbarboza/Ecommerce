@@ -23,7 +23,7 @@ const ProductCard = ({ handler, id, name, photo, price, stock }: props) => {
           <CardDescription>Card Description</CardDescription> */}
           <AspectRatio ratio={1 / 1}>
             <img
-              src={`http://localhost:3000/${photo}`}
+              src={`${import.meta.env.VITE_SERVER_BASE_URL}/${photo}`}
               alt="Image"
               className="rounded-md object-cover"
             />

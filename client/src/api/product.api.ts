@@ -1,9 +1,8 @@
 import {
-  MutationFunction,
-  UseQueryResult,
   keepPreviousData,
   useMutation,
   useQuery,
+  UseQueryResult,
 } from "@tanstack/react-query";
 import axios, { AxiosResponse } from "axios";
 import {
@@ -89,7 +88,7 @@ export const useSearchProducts = ({
     if (price) apiRoute += `&price=${price}`;
     if (sort) apiRoute += `&sort=${sort}`;
 
-    const res: AxiosResponse<apiResponseSearchType<productData>> =
+    const res: AxiosResponse<apiResponseSearchType<productData[]>> =
       await axios.get(`${base}/${apiRoute}`);
     return res.data;
   };
@@ -110,7 +109,7 @@ export const useCreateProductMutation = () => {
     formData: FormData;
   }) => {
     const apiRoute = "product/new";
-    const res: AxiosResponse<apiResponseType<productData>> = await axios.post(
+    const res: AxiosResponse<apiResponseType<productData[]>> = await axios.post(
       `${base}/${apiRoute}?id=${id}`,
       formData
     );
@@ -119,6 +118,64 @@ export const useCreateProductMutation = () => {
 
   return useMutation({
     mutationKey: ["create-product"],
+    mutationFn: mutFunction,
+  });
+};
+
+export const useGetProductDetails = ({ id }: { id: string }) => {
+  const getDetails = async () => {
+    const apiRoute = `product/${id}`;
+
+    const res: AxiosResponse<apiResponseSearchType<productData>> =
+      await axios.get(`${base}/${apiRoute}`);
+    return res.data;
+  };
+
+  return useQuery({
+    queryKey: ["product-details", id],
+    queryFn: () => getDetails(),
+  });
+};
+
+export const useUpdateProductMutation = () => {
+  const mutFunction = async ({
+    userId,
+    productId,
+    formData,
+  }: {
+    userId: string;
+    productId: string;
+    formData: FormData;
+  }) => {
+    const apiRoute = `product/${productId}`;
+    const res: AxiosResponse<apiResponseType<productData>> = await axios.put(
+      `${base}/${apiRoute}?id=${userId}`,
+      formData
+    );
+    return res.data;
+  };
+
+  return useMutation({
+    mutationFn: mutFunction,
+  });
+};
+
+export const useDeleteProductMutation = () => {
+  const mutFunction = async ({
+    userId,
+    productId,
+  }: {
+    userId: string;
+    productId: string;
+  }) => {
+    const apiRoute = `product/${productId}`;
+    const res: AxiosResponse<apiResponseType<productData>> = await axios.delete(
+      `${base}/${apiRoute}?id=${userId}`
+    );
+    return res.data;
+  };
+
+  return useMutation({
     mutationFn: mutFunction,
   });
 };
