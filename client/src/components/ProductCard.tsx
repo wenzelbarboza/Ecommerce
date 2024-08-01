@@ -10,9 +10,18 @@ type props = {
   photo: string;
   stock?: number;
   handler: (id: number) => void;
+  addToCartHandler: (id: number) => void;
 };
 
-const ProductCard = ({ handler, id, name, photo, price, stock }: props) => {
+const ProductCard = ({
+  handler,
+  id,
+  name,
+  photo,
+  price,
+  stock,
+  addToCartHandler,
+}: props) => {
   console.log(photo);
 
   return (
@@ -34,7 +43,11 @@ const ProductCard = ({ handler, id, name, photo, price, stock }: props) => {
           <p>₹: {price}</p>
         </CardContent>
         <CardContent>
-          <Button className="w-full" disabled={stock == 0 ? true : false}>
+          <Button
+            className="w-full"
+            onClick={() => addToCartHandler(id)}
+            disabled={stock == 0 ? true : false}
+          >
             add to cart <FaShoppingBag className="ml-1" />
           </Button>
           {stock == 0 && (

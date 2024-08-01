@@ -1,7 +1,6 @@
-import type {} from "@redux-devtools/extension"; // required for devtools typing
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { User } from "../types/types";
+import { User } from "../types/api.types";
 
 type userStateType = {
   loading: boolean;

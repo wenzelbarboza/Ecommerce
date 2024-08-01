@@ -5,6 +5,7 @@ import { useGetCatagories, useSearchProducts } from "../api/product.api";
 import useDebounce from "../lib/useDebounce";
 import { CardSkeletonLoader } from "../components/CardSkeletonLoader";
 import toast, { Toaster } from "react-hot-toast";
+import { useCartStore } from "../zustand/useCartStore";
 
 const Search = () => {
   const [search, setSearch] = useState("");
@@ -36,8 +37,25 @@ const Search = () => {
     price: debouncedMaxPrice,
   });
 
+  const cartStore = useCartStore();
+
   const cardClickHandler = () => {
     console.log("clicked on the card");
+  };
+
+  const addToCartHandler = (id: number) => {
+    const product = searchData?.data.filter((item) => Number(item.id) == id)[0];
+
+    if (product && product.stock >= 1) {
+      cartStore.setCartItems({
+        name: product.name,
+        photo: product.photo,
+        price: product.price,
+        productId: product.id,
+        quantity: 1,
+        stock: product.stock,
+      });
+    }
   };
 
   console.log(searchData?.data);
@@ -117,16 +135,11 @@ const Search = () => {
                   key={item.id}
                   stock={item.stock}
                   handler={cardClickHandler}
+                  addToCartHandler={addToCartHandler}
                 />
               );
             })
           )}
-          {/* <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
-          <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
-          <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
-          <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
-          <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" />
-          <ProductCard photo="https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg" /> */}
         </main>
         <article className=" flex justify-center items-center gap-2 py-4">
           <Button

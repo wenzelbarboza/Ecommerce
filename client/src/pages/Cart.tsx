@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { buttonVariants } from "../components/ui/button";
 import CartItem from "../components/CartItem";
+import { useCartStore } from "../zustand/useCartStore";
 
 // TODO: remove this
 type Item = {
@@ -14,11 +15,6 @@ type Item = {
 };
 
 const Cart = () => {
-  const total = 0;
-  const shippingCharges = 0;
-  const subtotal = 0;
-  const discount = 0;
-  const tax = 0;
   const cartItems = [
     {
       productId: "jkfdjslD",
@@ -33,27 +29,39 @@ const Cart = () => {
   const [couponCode, setCouponCode] = useState("");
   const [isValidCouponCode, setIsValidCouponCode] = useState(true);
 
+  const cartStore = useCartStore();
+
   const decrementHandler = (item: Item) => {
+    if (item.quantity <= 1) return;
+    cartStore.decrementQuantity(item.productId);
+
     console.log("decrementHandler clicked");
   };
 
   const incrementHandler = (item: Item) => {
+    if (item.quantity >= item.stock) return;
+
+    cartStore.incrementQuantity(item.productId);
     console.log("incrementHandler clicked");
   };
 
   const deletehandler = (item: Item) => {
-    console.log("deletehandler clicked");
+    cartStore.deleteCartItem(item.productId);
   };
+
+  useEffect(() => {
+    cartStore.calculatePrice();
+  }, [cartStore.cartItems]);
 
   return (
     <div className="flex custom-container">
       <main className=" flex-[2] no-scrollbar mt-5">
-        {cartItems.map((item) => {
+        {cartStore.cartItems.map((item) => {
           return (
             <CartItem
               decrementHandler={decrementHandler}
-              deletehandler={incrementHandler}
-              incrementHandler={deletehandler}
+              deletehandler={deletehandler}
+              incrementHandler={incrementHandler}
               item={item}
               key={item.productId}
             />
@@ -62,14 +70,14 @@ const Cart = () => {
       </main>
       <aside className=" flex-1 flex mt-10 justify-center relative">
         <div className="flex flex-col gap-3">
-          <p>Subtotal: ₹{subtotal}</p>
-          <p>Shipping Charges: ₹{shippingCharges}</p>
-          <p>Tax: ₹{tax}</p>
+          <p>Subtotal: ₹{cartStore.subTotal}</p>
+          <p>Shipping Charges: ₹{cartStore.shipmentCharges}</p>
+          <p>Tax: ₹{cartStore.tax}</p>
           <p>
-            Discount: <em className="red"> - ₹{discount}</em>
+            Discount: <em className="red"> - ₹{cartStore.discount}</em>
           </p>
           <p>
-            <b>Total: ₹{total}</b>
+            <b>Total: ₹{cartStore.total}</b>
           </p>
 
           <input
@@ -83,7 +91,7 @@ const Cart = () => {
           {couponCode &&
             (isValidCouponCode ? (
               <span className="green">
-                ₹{discount} off using the <code>{couponCode}</code>
+                ₹{cartStore.discount} off using the <code>{couponCode}</code>
               </span>
             ) : (
               <span className="text-red-400">Invalid Coupon</span>

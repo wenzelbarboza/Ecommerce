@@ -10,7 +10,7 @@ import "./styles/app.scss";
 import { useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosResponse } from "axios";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { userResponseType } from "./types/types";
+import { userResponseType } from "./types/api.types";
 import { useUserStore } from "./zustand/userStore";
 import Loader from "./components/admin/Loader";
 

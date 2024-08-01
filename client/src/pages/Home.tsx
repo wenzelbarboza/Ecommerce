@@ -11,18 +11,36 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "../components/ui/carousel";
+import { useCartStore } from "../zustand/useCartStore";
+import { useEffect } from "react";
+// import { shallow } from "zustand/shallow";
 
 // TODO:
 // good loader and skeleton
 
 const Home = () => {
+  const { data, isError, isLoading } = useGetLatestProd();
+  const cartStore = useCartStore();
+  const cartItems = useCartStore((state) => state.cartItems);
+
   const cardHandler = (id: number) => {
     console.log("this is product id: ", id);
   };
 
-  const { data, isError, isLoading } = useGetLatestProd();
+  const addToCartHandler = (id: number) => {
+    const product = data?.data.filter((item) => Number(item.id) == id)[0];
 
-  console.log("product data is :", data);
+    if (product && product.stock >= 1) {
+      cartStore.setCartItems({
+        name: product.name,
+        photo: product.photo,
+        price: product.price,
+        productId: product.id,
+        quantity: 1,
+        stock: product.stock,
+      });
+    }
+  };
 
   const toatText = () => {
     toast.error("cannot fetch products");
@@ -32,6 +50,12 @@ const Home = () => {
     console.log("inside the toast3");
     toatText();
   }
+
+  // useEffect(() => {
+  //   console.log("-----------calculate price called-----------");
+  //   cartStore.calculatePrice();
+  // }, [cartItems, cartStore.calculatePrice]);
+
   return (
     <div className="custom-container  ">
       <section className="w-full py-6">
@@ -66,6 +90,7 @@ const Home = () => {
                   key={item.id}
                   id={Number(item.id)}
                   handler={cardHandler}
+                  addToCartHandler={addToCartHandler}
                   name={item.name}
                   price={item.price}
                   photo={item.photo}
