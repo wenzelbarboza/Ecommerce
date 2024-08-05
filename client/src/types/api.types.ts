@@ -49,3 +49,62 @@ export type apiResponseType<T> = {
 export type apiResponseSearchType<T> = apiResponseType<T> & {
   totalPages: number;
 };
+
+// CREATE ORDER TYPES
+export type addressType = {
+  address: string;
+  city: string;
+  country: string;
+  pinCode: number;
+  state: string;
+  userId: string;
+};
+
+export type orderDetails = {
+  productId: number;
+  name: string;
+  photo: string;
+  quantity: number;
+  price: number;
+};
+
+export type newOrderType = {
+  userId: string;
+  adressInfo: addressType;
+  subtotal: number;
+  tax: number;
+  shippingCharges: number;
+  discount: number;
+  total: number;
+  orderDetails: orderDetails[];
+};
+
+export type orderDetailResponse = {
+  id: number;
+  orderId: number;
+  productId: number;
+  name: string;
+  photo: string;
+  quantity: number;
+  price: number;
+};
+
+export type orderResponesType = {
+  id: number;
+  userId: string;
+  addressId: number;
+  subtotal: number;
+  tax: number;
+  shippingCharges: number;
+  discount: number;
+  total: number;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type createOrderResponseType = {
+  success: boolean;
+  message: string;
+  data: orderResponesType & { orderDetails: orderDetailResponse[] };
+};

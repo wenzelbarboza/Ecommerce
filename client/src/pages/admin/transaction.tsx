@@ -1,11 +1,13 @@
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Column } from "react-table";
+import { useGetAllOrders } from "../../api/order.api";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import TableHOC from "../../components/admin/TableHOC";
+import { useUserStore } from "../../zustand/userStore";
 
 interface DataType {
-  user: string;
+  id: string;
   amount: number;
   discount: number;
   quantity: number;
@@ -13,38 +15,10 @@ interface DataType {
   action: ReactElement;
 }
 
-const arr: Array<DataType> = [
-  {
-    user: "Charas",
-    amount: 4500,
-    discount: 400,
-    status: <span className="red">Processing</span>,
-    quantity: 3,
-    action: <Link to="/admin/transaction/sajknaskd">Manage</Link>,
-  },
-
-  {
-    user: "Xavirors",
-    amount: 6999,
-    discount: 400,
-    status: <span className="green">Shipped</span>,
-    quantity: 6,
-    action: <Link to="/admin/transaction/sajknaskd">Manage</Link>,
-  },
-  {
-    user: "Xavirors",
-    amount: 6999,
-    discount: 400,
-    status: <span className="purple">Delivered</span>,
-    quantity: 6,
-    action: <Link to="/admin/transaction/sajknaskd">Manage</Link>,
-  },
-];
-
 const columns: Column<DataType>[] = [
   {
-    Header: "Avatar",
-    accessor: "user",
+    Header: "User ID",
+    accessor: "id",
   },
   {
     Header: "Amount",
@@ -69,7 +43,26 @@ const columns: Column<DataType>[] = [
 ];
 
 const Transaction = () => {
-  const [rows, setRows] = useState<DataType[]>(arr);
+  const user = useUserStore((state) => state.user);
+  const { data, isLoading, isError } = useGetAllOrders(user?.id!);
+  const [rows, setRows] = useState<DataType[]>([]);
+
+  useEffect(() => {
+    if (data?.data) {
+      setRows(
+        data.data.map((item) => {
+          return {
+            id: String(item.id),
+            amount: item.total,
+            discount: item.discount,
+            status: <span className="red">{item.status}</span>,
+            quantity: item.orderDetails.length,
+            action: <Link to="/admin/transaction/sajknaskd">Manage</Link>,
+          };
+        })
+      );
+    }
+  }, [data]);
 
   const Table = TableHOC<DataType>(
     columns,
@@ -78,6 +71,11 @@ const Transaction = () => {
     "Transactions",
     rows.length > 6
   )();
+
+  if (isLoading) return <h3 className=" text-xl">Table is loading...</h3>;
+
+  if (isError) return <h3 className=" text-red-400 text-xl">Error...</h3>;
+
   return (
     <div className="admin-container">
       <AdminSidebar />

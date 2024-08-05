@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { buttonVariants } from "../components/ui/button";
+import { useValidateCupon } from "../api/product.api";
 import CartItem from "../components/CartItem";
+import { buttonVariants } from "../components/ui/button";
+import useDebounce from "../lib/useDebounce";
 import { useCartStore } from "../zustand/useCartStore";
+import { useMyOrderMutate } from "../api/order.api";
 
 // TODO: remove this
 type Item = {
@@ -27,7 +30,12 @@ const Cart = () => {
   ];
 
   const [couponCode, setCouponCode] = useState("");
-  const [isValidCouponCode, setIsValidCouponCode] = useState(true);
+  // const [isValidCouponCode, setIsValidCouponCode] = useState(true);
+  const [debounceCuponCode] = useDebounce(couponCode, 500);
+
+  console.log("this is the debounce value: ", debounceCuponCode);
+
+  const { data: discountData } = useValidateCupon(debounceCuponCode);
 
   const cartStore = useCartStore();
 
@@ -50,8 +58,12 @@ const Cart = () => {
   };
 
   useEffect(() => {
+    if (discountData) {
+      console.log("discountData is: ", discountData);
+      cartStore.updateDiscount(discountData.data);
+    }
     cartStore.calculatePrice();
-  }, [cartStore.cartItems]);
+  }, [cartStore.cartItems, discountData]);
 
   return (
     <div className="flex custom-container">
@@ -89,7 +101,7 @@ const Cart = () => {
           />
 
           {couponCode &&
-            (isValidCouponCode ? (
+            (discountData?.success ? (
               <span className="green">
                 ₹{cartStore.discount} off using the <code>{couponCode}</code>
               </span>
@@ -102,6 +114,9 @@ const Cart = () => {
               Checkout
             </Link>
           )}
+          {/* test */}
+          {/* <button onClick={() => handleMyOrder()}>handelCreateOrder</button> */}
+          {/* test end */}
         </div>
       </aside>
     </div>

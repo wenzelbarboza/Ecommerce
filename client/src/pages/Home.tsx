@@ -12,7 +12,6 @@ import {
   CarouselPrevious,
 } from "../components/ui/carousel";
 import { useCartStore } from "../zustand/useCartStore";
-import { useEffect } from "react";
 // import { shallow } from "zustand/shallow";
 
 // TODO:

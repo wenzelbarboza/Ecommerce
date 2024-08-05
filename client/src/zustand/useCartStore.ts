@@ -32,6 +32,7 @@ type cartStoreInitialState = {
   incrementQuantity: (productId: string) => void;
   decrementQuantity: (productId: string) => void;
   calculatePrice: () => void;
+  updateDiscount: (discount: number) => void;
 };
 
 export const useCartStore = create<cartStoreInitialState>()(
@@ -155,6 +156,13 @@ export const useCartStore = create<cartStoreInitialState>()(
           shipmentCharges,
           tax,
           total,
+        };
+      }),
+    updateDiscount: (discount: number) =>
+      set((state) => {
+        return {
+          ...state,
+          discount: discount,
         };
       }),
   }))

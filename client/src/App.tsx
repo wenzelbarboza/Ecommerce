@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { userResponseType } from "./types/api.types";
 import { useUserStore } from "./zustand/userStore";
 import Loader from "./components/admin/Loader";
+import TestPage from "./components/TestPage";
 
 const Home = lazy(() => import("./pages/Home"));
 const Search = lazy(() => import("./pages/Search"));
@@ -100,6 +101,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="/search" element={<Search />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/test" element={<TestPage />} />
             <Route
               path="/login"
               element={

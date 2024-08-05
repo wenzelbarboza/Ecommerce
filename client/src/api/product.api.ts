@@ -179,3 +179,16 @@ export const useDeleteProductMutation = () => {
     mutationFn: mutFunction,
   });
 };
+
+export const useValidateCupon = (code: string) => {
+  const handleValidate = async () => {
+    const apiRoute = `payment/coupon/get-discount?couponCode=${code}`;
+    return (await axios.get<apiResponseType<number>>(`${base}/${apiRoute}`))
+      .data;
+  };
+
+  return useQuery({
+    queryKey: ["discount", code],
+    queryFn: handleValidate,
+  });
+};

@@ -1,7 +1,9 @@
-import { ReactElement, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Column } from "react-table";
 import TableHOC from "../components/admin/TableHOC";
+import { useMyOrderQuerry } from "../api/order.api";
+import { useUserStore } from "../zustand/userStore";
 
 type DataType = {
   _id: string;
@@ -40,16 +42,38 @@ const column: Column<DataType>[] = [
 ];
 
 const Orders = () => {
-  const [rows, setRows] = useState([
-    {
-      _id: "sdlfdjf",
-      amount: 223233,
-      quantity: 23,
-      discount: 45,
-      status: <span></span>,
-      action: <Link to={`/order/sdlfdjf`}>details</Link>,
-    },
-  ]);
+  const user = useUserStore((state) => state.user);
+  const { data, isLoading, isError } = useMyOrderQuerry(user?.id!);
+  const [rows, setRows] = useState<DataType[]>([]);
+
+  useEffect(() => {
+    if (data?.data) {
+      setRows(
+        data.data.map((i) => {
+          return {
+            _id: String(i.id),
+            amount: i.total,
+            discount: i.discount,
+            quantity: i.orderDetails.length,
+            status: (
+              <span
+                className={
+                  i.status === "Processing"
+                    ? "red"
+                    : i.status === "Shipped"
+                    ? "green"
+                    : "purple"
+                }
+              >
+                {i.status}
+              </span>
+            ),
+            action: <Link to={`/admin/transaction/${i.id}`}>Manage</Link>,
+          };
+        })
+      );
+    }
+  }, [data]);
 
   const Table = TableHOC<DataType>(
     column,
@@ -58,6 +82,10 @@ const Orders = () => {
     "Orders",
     rows.length > 6
   )();
+
+  if (isLoading) return <h3 className=" text-xl">Table is loading...</h3>;
+
+  if (isError) return <h3 className=" text-red-400 text-xl">Error...</h3>;
 
   return (
     <div className="bg-yellow-200 flex custom-container">
