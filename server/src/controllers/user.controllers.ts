@@ -51,7 +51,7 @@ export const createUser = asyncHandler(
 
     return res.status(200).json({
       success: true,
-      newUser,
+      data: newUser,
     });
   }
 );
@@ -86,7 +86,7 @@ export const getUser = asyncHandler(async (req, res, next) => {
 
   return res.status(200).json({
     success: true,
-    user,
+    data: user,
   });
 });
 

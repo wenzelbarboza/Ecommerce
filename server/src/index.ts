@@ -4,6 +4,7 @@ import { caltachAllError } from "./utils/caltachAllError.js";
 import NodeCache from "node-cache";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import cors from "cors";
 dotenv.config({
   path: "./.env",
 });
@@ -14,8 +15,10 @@ export const myCache = new NodeCache();
 const app = express();
 
 const port = process.env.PORT || 3000;
+export const stripe = new Stripe(process.env.STRIPE_KEY);
 
 //middlewares
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(cookieParser());
@@ -28,6 +31,7 @@ import { productRouter } from "./routes/product.routes.js";
 import { orderRouter } from "./routes/order.routes.js";
 import { paymentRouter } from "./routes/payment.routes.js";
 import { statsRouter } from "./routes/stats.routes.js";
+import Stripe from "stripe";
 
 //route
 app.use("/api/v1/user", userRouter);

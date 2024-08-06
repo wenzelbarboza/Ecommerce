@@ -26,8 +26,11 @@ export const myOrders = asyncHandler(async (req, res) => {
   if (myCache.has(key)) {
     myorder = myCache.get(key);
   } else {
-    myorder = await prisma.order.findMany({ where: { userId: String(id) } });
-    if (myorder.length == 0 || !myorder) {
+    myorder = await prisma.order.findMany({
+      where: { userId: String(id) },
+      include: { orderDetails: true },
+    });
+    if (!myorder) {
       throw new ApiError("no data found", 400);
     }
     myCache.set(key, myorder);
@@ -48,7 +51,11 @@ export const all = asyncHandler(async (req, res) => {
   if (myCache.has(key)) {
     orders = myCache.get(key);
   } else {
-    orders = await prisma.order.findMany();
+    orders = await prisma.order.findMany({
+      include: {
+        orderDetails: true,
+      },
+    });
     myCache.set(key, orders);
   }
   return res.status(200).json({
@@ -68,6 +75,11 @@ export const singleOrder = asyncHandler(async (req: Request, res) => {
   } else {
     singleorder = await prisma.order.findUnique({
       where: { id: Number(orderId) },
+      include: {
+        address: true,
+        user: true,
+        orderDetails: true,
+      },
     });
     if (!singleorder) {
       throw new ApiError("no data found", 400);

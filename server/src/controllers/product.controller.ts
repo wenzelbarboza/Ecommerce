@@ -57,7 +57,7 @@ export const newProduct = asyncHandler(
     res.status(201).json({
       success: true,
       message: "product created successfully",
-      newProduct,
+      data: newProduct,
     });
   }
 );
@@ -81,7 +81,7 @@ export const getLatestProducts = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     message: "fetched the latest record",
-    data: latestProductResponse[0],
+    data: latestProductResponse,
   });
 });
 
@@ -106,9 +106,9 @@ export const getProductCatagories = asyncHandler(async (req, res) => {
   let categoriesRes;
 
   if (myCache.has("cached-categories")) {
-    myCache.get("cached-categories");
+    categoriesRes = myCache.get("cached-categories");
   } else {
-    const categoriesRes = await prisma.product.findMany({
+    categoriesRes = await prisma.product.findMany({
       distinct: "category",
       select: {
         category: true,
@@ -205,6 +205,8 @@ export const updateProduct = asyncHandler(
 
     const { name, price, stock, category } = req.body;
 
+    console.log(req.body);
+
     const photo = req.file;
 
     try {
@@ -259,7 +261,9 @@ export const updateProduct = asyncHandler(
         },
       });
 
-      myCache.del("cached-latest");
+      // myCache.del("cached-latest");
+
+      await invlidateCache({ product: true, admin: true });
 
       return res.status(200).json({
         success: true,
@@ -279,7 +283,10 @@ export const updateProduct = asyncHandler(
 
 export const filterProduct = asyncHandler(
   async (req: Request<any, any, any, productSearchQueryParams>, res) => {
-    const { search, category, price, sort, page } = req.query;
+    let { search, category, price, sort, page } = req.query;
+
+    price = Number(price);
+    page = Number(page);
 
     const pagesize = 10;
     const skip = (page - 1) * pagesize;

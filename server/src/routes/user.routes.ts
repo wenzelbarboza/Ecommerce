@@ -9,7 +9,7 @@ import { isAdmin } from "../middlewares/isAdmin.js";
 
 const userRouter = express.Router();
 
-//route user - /api/v1/users
+//route user - /api/v1/user
 // create user - /new
 userRouter.post("/new", createUser);
 // getAllUsers user - /all

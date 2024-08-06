@@ -3,9 +3,33 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import type { Coupon } from "@prisma/client";
 import { ApiError } from "../utils/apiError.js";
 import { PrismaClient } from "@prisma/client";
+import { stripe } from "../index.js";
 
 const prisma = new PrismaClient();
 
+export const createPaymentIntent = asyncHandler(async (req, res) => {
+  const { amount } = req.body;
+
+  if (!amount) {
+    throw new ApiError("Please send amount", 400);
+  }
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Number(amount) * 100,
+      currency: "inr",
+    });
+
+    return res.status(200).send({
+      success: true,
+      message: "intient creted successfully",
+      data: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(error.message || "issue in creating intene", 400);
+  }
+});
 export const newCoupon = asyncHandler(
   async (req: Request<any, any, Coupon>, res) => {
     const couponCode = req.body.couponCode;
@@ -52,7 +76,7 @@ export const discount = asyncHandler(async (req, res) => {
     throw new ApiError("please enter cupon code");
   }
 
-  const discountRes = await prisma.coupon.findUniqueOrThrow({
+  const discountRes = await prisma.coupon.findUnique({
     where: {
       couponCode,
     },
@@ -61,11 +85,21 @@ export const discount = asyncHandler(async (req, res) => {
     },
   });
 
-  return res.status(200).json({
-    success: true,
-    message: "discount amount found",
-    data: discountRes,
-  });
+  console.log("this is discount findUique response: ", discountRes);
+
+  if (discountRes) {
+    return res.status(200).json({
+      success: true,
+      message: "discount amount found",
+      data: discountRes.discount,
+    });
+  } else {
+    return res.status(200).json({
+      success: false,
+      message: `No discount found for the given code ${couponCode}`,
+      data: 0,
+    });
+  }
 });
 
 export const deleteCoupon = asyncHandler(async (req, res) => {
