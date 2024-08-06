@@ -18,6 +18,7 @@ import TestPage from "./components/TestPage";
 const Home = lazy(() => import("./pages/Home"));
 const Search = lazy(() => import("./pages/Search"));
 const Cart = lazy(() => import("./pages/Cart"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 //Not logged in
 const Login = lazy(() => import("./pages/Login"));
@@ -169,6 +170,7 @@ function App() {
               />
             </Route>
           </Route>
+          <Route path="/*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </Router>

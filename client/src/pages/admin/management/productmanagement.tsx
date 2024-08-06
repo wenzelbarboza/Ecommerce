@@ -7,7 +7,7 @@ import {
   useGetProductDetails,
   useUpdateProductMutation,
 } from "../../../api/product.api";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { CardSkeletonLoader } from "../../../components/CardSkeletonLoader";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -142,9 +142,7 @@ const Productmanagement = () => {
   }, []);
 
   // TODO make this error beautiful
-  if (isDataError && !data?.success) {
-    return <h1>no data found. Data fetching error</h1>;
-  }
+  if (isDataError) return <Navigate to="/404" />;
 
   return (
     <div className="admin-container">

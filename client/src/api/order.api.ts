@@ -6,6 +6,8 @@ import {
   newOrderType,
   orderDetails,
   orderDetailResponse,
+  addressResponseType,
+  userResponseTypeforDetails,
 } from "../types/api.types";
 
 const orderBase = `${import.meta.env.VITE_SERVER_BASE_URL}/api/v1/order`;
@@ -65,15 +67,30 @@ export const useGetAllOrders = (userId: string) => {
   });
 };
 
-export const useGetOrderDetails = () => {
-  const func = async (productId: number) => {
-    return await axios.get<apiResponseType<orderResponesType>>(
-      `${orderBase}/${productId}`
-    );
+type orderDetailsType = orderResponesType & {
+  address: addressResponseType;
+  user: userResponseTypeforDetails;
+  orderDetails: orderDetailResponse[];
+};
+
+export const useGetOrderDetails = ({
+  productId,
+  adminId,
+}: {
+  productId: number;
+  adminId: string;
+}) => {
+  const func = async () => {
+    return (
+      await axios.get<apiResponseType<orderDetailsType>>(
+        `${orderBase}/${productId}?id=${adminId}`
+      )
+    ).data;
   };
 
-  return useMutation({
-    mutationFn: func,
+  return useQuery({
+    queryKey: ["order-details", productId, adminId],
+    queryFn: func,
   });
 };
 

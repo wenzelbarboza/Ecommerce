@@ -60,6 +60,28 @@ export type addressType = {
   userId: string;
 };
 
+export type addressResponseType = {
+  id: number;
+  userId: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  pinCode: number;
+};
+
+export type userResponseTypeforDetails = {
+  id: string;
+  name: string;
+  email: string;
+  photo: string;
+  role: string;
+  gender: string;
+  dob: Date;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type orderDetails = {
   productId: number;
   name: string;

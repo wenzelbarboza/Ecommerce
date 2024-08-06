@@ -57,7 +57,7 @@ const Transaction = () => {
             discount: item.discount,
             status: <span className="red">{item.status}</span>,
             quantity: item.orderDetails.length,
-            action: <Link to="/admin/transaction/sajknaskd">Manage</Link>,
+            action: <Link to={`/admin/transaction/${item.id}`}>Manage</Link>,
           };
         })
       );
