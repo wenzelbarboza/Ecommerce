@@ -2,15 +2,23 @@ import { BiMaleFemale } from "react-icons/bi";
 import { BsSearch } from "react-icons/bs";
 import { FaRegBell } from "react-icons/fa";
 import { HiTrendingDown, HiTrendingUp } from "react-icons/hi";
-import data from "../../assets/data.json";
+// import data from "../../assets/data.json";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { BarChart, DoughnutChart } from "../../components/admin/Charts";
 import Table from "../../components/admin/DashboardTable";
+import { useStatsQuerry } from "../../api/stats.api";
 
 const userImg =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJxA5cTf-5dh5Eusm0puHbvAhOrCRPtckzjA&usqp";
 
 const Dashboard = () => {
+  const { data: statsData, error, isError, isLoading } = useStatsQuerry();
+
+  const data = statsData?.data;
+
+  if (isLoading) return <h1>Loading...</h1>;
+  if (isError) return <h1>Error occurres with fitching</h1>;
+
   return (
     <div className="admin-container">
       <AdminSidebar />
@@ -66,14 +74,15 @@ const Dashboard = () => {
 
           <div className="dashboard-categories">
             <h2>Inventory</h2>
-
             <div>
-              {data.categories.map((i) => (
+              {Object.keys(data?.catagoryPercentage || {}).map((i) => (
                 <CategoryItem
-                  key={i.heading}
-                  value={i.value}
-                  heading={i.heading}
-                  color={`hsl(${i.value * 4}, ${i.value}%, 50%)`}
+                  key={i}
+                  // @ts-ignore
+                  value={data?.catagoryPercentage[i]}
+                  heading={i}
+                  // @ts-ignore
+                  color={`hsl(${data?.catagoryPercentage[i] * 4}, ${data?.catagoryPercentage[i]}%, 50%)`}
                 />
               ))}
             </div>
@@ -85,7 +94,10 @@ const Dashboard = () => {
             <h2>Gender Ratio</h2>
             <DoughnutChart
               labels={["Female", "Male"]}
-              data={[12, 19]}
+              data={[
+                Number(data?.genderRatio.female),
+                Number(data?.genderRatio.male),
+              ]}
               backgroundColor={[
                 "hsl(340, 82%, 56%)",
                 "rgba(53, 162, 235, 0.8)",
@@ -96,7 +108,18 @@ const Dashboard = () => {
               <BiMaleFemale />
             </p>
           </div>
-          <Table data={data.transaction} />
+          {/* TODO   */}
+          <Table
+            data={
+              data?.LatestTransaction.map((item) => ({
+                id: item.id,
+                total: item.total,
+                status: item.status,
+                discount: item.discount,
+                quantity: item.quantity,
+              })) ?? []
+            }
+          />
         </section>
       </main>
     </div>

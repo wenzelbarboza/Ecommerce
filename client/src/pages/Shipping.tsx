@@ -3,11 +3,18 @@ import { FaArrowLeft } from "react-icons/fa";
 import { Button } from "../components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../zustand/useCartStore";
-import { RiH1 } from "react-icons/ri";
+import axios from "axios";
+import { apiResponseType } from "../types/api.types";
+import { useUserStore } from "../zustand/userStore";
+import toast from "react-hot-toast";
 
 const Shipping = () => {
   const navigate = useNavigate();
   const cartStore = useCartStore();
+  // const addressStore = useAddress();
+  const userStore = useUserStore();
+
+  console.log("cart store is : ", cartStore);
 
   console.log("this is the cart length ", cartStore.cartItems.length);
 
@@ -38,6 +45,60 @@ const Shipping = () => {
     }
   }, [cartStore.cartItems]);
 
+  const submitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const { pinCode, country, city, state, address } = shippingInfo;
+
+    if (!pinCode || !country || !city || !state || !address) {
+      toast.error("all form fields are necessary");
+      return;
+    }
+
+    try {
+      const res = await axios.post<apiResponseType<string>>(
+        `${import.meta.env.VITE_SERVER_BASE_URL}/api/v1/payment/create`,
+        { amount: cartStore.total }
+      );
+
+      cartStore.setAddress({
+        address: address,
+        // userId: userStore.user?.id as string,
+        state: state,
+        city: city,
+        country: country,
+        pinCode: pinCode,
+      });
+
+      // addressStore.setAddress({
+      //   address: address,
+      //   userId: userStore.user?.id as string,
+      //   state: state,
+      //   city: city,
+      //   country: country,
+      //   pinCode: Number(pinCode),
+      // });
+
+      navigate("/pay", {
+        state: res.data.data,
+      });
+    } catch (error) {
+      console.error(error || "shipping address error");
+    }
+  };
+
+  // const handleAddress = () => {
+  //   addressStore.setAddress({
+  //     address: "testaddress",
+  //     state: "testState",
+  //     city: "testvalue",
+  //     country: "testvalue",
+  //     userId: "testvalue",
+  //     pinCode: 11,
+  //   });
+  //   console.log("address is set");
+  // };
+
   return (
     <>
       {cartStore.cartItems.length == 0 ? (
@@ -54,10 +115,11 @@ const Shipping = () => {
       </button> */}
           <div className="flex-1 flex flex-col justify-center items-center w-full ">
             <div className="w-60 sm:w-80">
-              <form className=" flex flex-col items-stretch gap-4">
-                <h1 className="text-center text-lg text-xl">
-                  Shipping Address
-                </h1>
+              <form
+                onSubmit={submitHandler}
+                className=" flex flex-col items-stretch gap-4"
+              >
+                <h1 className="text-center text-xl">Shipping Address</h1>
 
                 <input
                   className="border-[1px] border-gray-400 rounded-sm p-1"
@@ -114,6 +176,7 @@ const Shipping = () => {
               </form>
             </div>
           </div>
+          {/* <Button onClick={handleAddress}>setAddress</Button> */}
         </div>
       )}
     </>

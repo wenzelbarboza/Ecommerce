@@ -21,7 +21,12 @@ const orderBase = `${import.meta.env.VITE_SERVER_BASE_URL}/api/v1/order`;
 
 export const useCreateOrderMutatue = () => {
   const func = async (data: newOrderType) => {
-    return await axios.post<orderResponesType>(`${orderBase}/new`, data);
+    return (
+      await axios.post<apiResponseType<orderResponesType>>(
+        `${orderBase}/new`,
+        data
+      )
+    ).data;
   };
 
   return useMutation({

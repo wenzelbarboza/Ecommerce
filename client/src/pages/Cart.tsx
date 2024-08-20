@@ -5,7 +5,7 @@ import CartItem from "../components/CartItem";
 import { buttonVariants } from "../components/ui/button";
 import useDebounce from "../lib/useDebounce";
 import { useCartStore } from "../zustand/useCartStore";
-import { useMyOrderMutate } from "../api/order.api";
+// import { useMyOrderMutate } from "../api/order.api";
 
 // TODO: remove this
 type Item = {
@@ -18,17 +18,6 @@ type Item = {
 };
 
 const Cart = () => {
-  const cartItems = [
-    {
-      productId: "jkfdjslD",
-      photo: "https://m.media-amazon.com/images/I/61Qe0euJJZL._SX679_.jpg",
-      name: "some book",
-      price: 999,
-      quantity: 1,
-      stock: 20,
-    },
-  ];
-
   const [couponCode, setCouponCode] = useState("");
   // const [isValidCouponCode, setIsValidCouponCode] = useState(true);
   const [debounceCuponCode] = useDebounce(couponCode, 500);
@@ -109,7 +98,7 @@ const Cart = () => {
               <span className="text-red-400">Invalid Coupon</span>
             ))}
 
-          {cartItems.length > 0 && (
+          {cartStore.cartItems.length > 0 && (
             <Link className={buttonVariants()} to="/shipping">
               Checkout
             </Link>

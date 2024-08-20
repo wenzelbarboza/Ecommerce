@@ -1,3 +1,4 @@
+import { useBarChart } from "../../../api/stats.api";
 import AdminSidebar from "../../../components/admin/AdminSidebar";
 import { BarChart } from "../../../components/admin/Charts";
 
@@ -17,6 +18,11 @@ const months = [
 ];
 
 const Barcharts = () => {
+  const { data, isLoading, isError, error } = useBarChart();
+
+  if (isError) return <h1>data loading error...</h1>;
+  if (isLoading) return <h1>data is Loading...</h1>;
+
   return (
     <div className="admin-container">
       <AdminSidebar />
@@ -24,8 +30,8 @@ const Barcharts = () => {
         <h1>Bar Charts</h1>
         <section>
           <BarChart
-            data_2={[300, 144, 433, 655, 237, 755, 190]}
-            data_1={[200, 444, 343, 556, 778, 455, 990]}
+            data_2={data?.data.products || []}
+            data_1={data?.data.users || []}
             title_1="Products"
             title_2="Users"
             bgColor_1={`hsl(260, 50%, 30%)`}
@@ -37,9 +43,7 @@ const Barcharts = () => {
         <section>
           <BarChart
             horizontal={true}
-            data_1={[
-              200, 444, 343, 556, 778, 455, 990, 444, 122, 334, 890, 909,
-            ]}
+            data_1={data?.data.orders || []}
             data_2={[]}
             title_1="Orders"
             title_2=""

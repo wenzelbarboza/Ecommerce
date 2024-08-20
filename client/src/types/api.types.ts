@@ -55,9 +55,9 @@ export type addressType = {
   address: string;
   city: string;
   country: string;
-  pinCode: number;
+  pinCode: string;
   state: string;
-  userId: string;
+  // userId: string;
 };
 
 export type addressResponseType = {
@@ -129,4 +129,77 @@ export type createOrderResponseType = {
   success: boolean;
   message: string;
   data: orderResponesType & { orderDetails: orderDetailResponse[] };
+};
+
+// stats types
+
+export type statsReturnType = {
+  growthData: {
+    productGrowth: string;
+    orderGrowth: string;
+    userGrowth: string;
+    revenueGrowth: string;
+  };
+  count: {
+    revenue: string;
+    product: string;
+    user: string;
+    order: string;
+  };
+  charts: {
+    order: string[];
+    revenue: string[];
+  };
+  catagoryPercentage: {};
+  genderRatio: {
+    male: string;
+    female: string;
+  };
+  LatestTransaction: {
+    quantity: string;
+    discount: string;
+    total: string;
+    status: "Processing" | "Shipped" | "Delivered";
+    id: string;
+  }[];
+};
+
+export type lineApiReturn = {
+  products: number[];
+  users: number[];
+  revene: number[];
+  discount: number[];
+};
+
+export type barApiReturn = {
+  orders: number[];
+  products: number[];
+  users: number[];
+};
+
+export type pieChartApiReturn = {
+  orderFullfillmentStatus: {
+    ordersPrcessing: number;
+    ordersShipped: number;
+    ordersDelivered: number;
+  };
+  categoryPercentage: {
+    [key: string]: number;
+  };
+  inventoryCount: {
+    outOfStock: number;
+    inStock: number;
+  };
+  revenueDistribution: {
+    [key: string]: number;
+  };
+  adminCustomer: {
+    admin: number;
+    customer: number;
+  };
+  ageDistribution: {
+    teen: number;
+    audult: number;
+    old: number;
+  };
 };

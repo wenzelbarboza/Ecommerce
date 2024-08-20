@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { addressType } from "../types/api.types";
 
 type cartItem = {
   productId: string;
@@ -33,6 +34,8 @@ type cartStoreInitialState = {
   decrementQuantity: (productId: string) => void;
   calculatePrice: () => void;
   updateDiscount: (discount: number) => void;
+  setAddress: (shipmentInfo: shipmentInfo) => void;
+  clearCart: () => void;
 };
 
 export const useCartStore = create<cartStoreInitialState>()(
@@ -51,13 +54,14 @@ export const useCartStore = create<cartStoreInitialState>()(
       country: "",
       pinCode: "",
     },
+    setAddress: (shipmentInfo: addressType) => set(() => ({ shipmentInfo })),
     setCartItems: (newItem: cartItem) =>
       set((state) => {
         console.log("inside set cart and this is the item received: ", newItem);
         let updatedCartItems: cartItem[];
 
         const oldItemIndex = state.cartItems.findIndex(
-          (item) => item.productId == newItem.productId
+          (item) => item.productId == newItem.productId,
         );
 
         console.log("this is old index: ", oldItemIndex);
@@ -83,6 +87,7 @@ export const useCartStore = create<cartStoreInitialState>()(
 
         return newState;
       }),
+
     deleteCartItem: (productId: string) =>
       set((state) => {
         console.log("inside delete cart item");
@@ -90,7 +95,7 @@ export const useCartStore = create<cartStoreInitialState>()(
         console.log("product id is: ", productId);
 
         const updatedCartItems = state.cartItems.filter(
-          (item) => item.productId != productId
+          (item) => item.productId != productId,
         );
 
         console.log("item delete");
@@ -144,7 +149,7 @@ export const useCartStore = create<cartStoreInitialState>()(
       set((state) => {
         const subTotal = state.cartItems.reduce(
           (total, item) => total + item.price * item.quantity,
-          0
+          0,
         );
         const shipmentCharges = subTotal > 1000 ? 0 : 200;
         const tax = Math.round(subTotal * 0.18);
@@ -165,5 +170,23 @@ export const useCartStore = create<cartStoreInitialState>()(
           discount: discount,
         };
       }),
-  }))
+    clearCart: () => {
+      set(() => ({
+        loading: false,
+        cartItems: [],
+        subTotal: 0,
+        tax: 0,
+        shipmentCharges: 0,
+        discount: 0,
+        total: 0,
+        shipmentInfo: {
+          address: "",
+          city: "",
+          state: "",
+          country: "",
+          pinCode: "",
+        },
+      }));
+    },
+  })),
 );

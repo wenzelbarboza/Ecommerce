@@ -41,11 +41,12 @@ const Stopwatch = lazy(() => import("./pages/admin/apps/stopwatch"));
 const Toss = lazy(() => import("./pages/admin/apps/toss"));
 const NewProduct = lazy(() => import("./pages/admin/management/newproduct"));
 const ProductManagement = lazy(
-  () => import("./pages/admin/management/productmanagement")
+  () => import("./pages/admin/management/productmanagement"),
 );
 const TransactionManagement = lazy(
-  () => import("./pages/admin/management/transactionmanagement")
+  () => import("./pages/admin/management/transactionmanagement"),
 );
+const Checkout = lazy(() => import("./pages/Checkout"));
 
 function App() {
   const userStore = useUserStore();
@@ -53,29 +54,24 @@ function App() {
 
   const fetchUser = async (uid: string) => {
     const { data }: AxiosResponse<userResponseType> = await axios.get(
-      `${import.meta.env.VITE_SERVER_BASE_URL}/api/v1/user/${uid}`
+      `${import.meta.env.VITE_SERVER_BASE_URL}/api/v1/user/${uid}`,
     );
     // console.log("fetch user data:", data);
     return data.data;
   };
 
   // const dispatch = useDispatch();
-
   useEffect(() => {
     onAuthStateChanged(auth, async (user) => {
       try {
         if (user) {
-          // find-zustand
-          // userStore.setUser();
-          // console.log("The firebaseUser is logged is: ", user.toJSON());
           const userData = await queryClient.fetchQuery({
             queryKey: ["user", user.uid],
             queryFn: () => fetchUser(user.uid),
           });
-          // console.log("app tsx user from db: ", userData);
+
           userStore.setUser(userData);
           userStore.setLoading(false);
-          // console.log("user from zustand", userStore.user);
         } else {
           userStore.setUser(null);
           userStore.setLoading(false);
@@ -122,13 +118,9 @@ function App() {
               <Route path="/shipping" element={<Shipping />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/order/:id" element={<OrderDeatils />} />
+              <Route path="/pay" element={<Checkout />} />
             </Route>
             {/* ADMIN routes */}
-            {/* <Route
-          element={
-            <ProtectedRoute isAuthenticated={true} adminRoute={true} isAdmin={true} />
-          }
-          > */}
 
             <Route
               element={
