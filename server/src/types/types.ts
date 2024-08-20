@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import type { Address, Order, OrderDetail } from "@prisma/client";
+import type { $Enums, Address, Order, OrderDetail } from "@prisma/client";
 
 export type NewUserRequestBody = {
   id: string;
@@ -92,7 +92,26 @@ export type invalidateOptionTypes = {
   orderId?: string;
 };
 
-export type newOrderRequestBody = Order & {
-  adressInfo: Address;
+type apiAddress = {
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  pinCode: string;
+};
+
+export type newOrderRequestBody = {
+  id: number;
+  userId: string;
+  addressId: number;
+  subtotal: string;
+  tax: string;
+  shippingCharges: string;
+  discount: string;
+  total: string;
+  status: $Enums.Status;
+  createdAt: Date;
+  updatedAt: Date;
+  adressInfo: apiAddress;
   orderDetails: OrderDetail[];
 };

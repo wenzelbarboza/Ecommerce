@@ -60,7 +60,13 @@ type catetgoryRatioType = {
   category: string;
 }[];
 
-export const calculateCategoryRatio = (products: catetgoryRatioType) => {
+type calculateCategoryRatioType = {
+  [key: string]: number;
+};
+
+export const calculateCategoryRatio = (
+  products: catetgoryRatioType,
+): calculateCategoryRatioType => {
   let catagoryCount = {};
 
   products.forEach((product) => {
@@ -73,7 +79,7 @@ export const calculateCategoryRatio = (products: catetgoryRatioType) => {
   const catagoryPercentage = {};
   Object.keys(catagoryCount).forEach((key) => {
     catagoryPercentage[key] = Math.round(
-      (catagoryCount[key] / totalProducts) * 100
+      (catagoryCount[key] / totalProducts) * 100,
     );
   });
 
@@ -113,7 +119,7 @@ export const CalculatelastSixmonthGrowth = ({
   length,
   dataObj,
   property,
-}: lastSixmonthGrowthType) => {
+}: lastSixmonthGrowthType): number[] => {
   const today = new Date();
   let outList = new Array(length).fill(0);
 
@@ -133,4 +139,16 @@ export const CalculatelastSixmonthGrowth = ({
   });
 
   return outList;
+};
+
+export const isValidNumber = (input: string | undefined | null): boolean => {
+  // Check if input is null or undefined
+  if (input === undefined || input === null) {
+    return false;
+  }
+
+  const num = Number(input);
+
+  // return !isNaN(num) && input.trim() !== "";
+  return !isNaN(num);
 };

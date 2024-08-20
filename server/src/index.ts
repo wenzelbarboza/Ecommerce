@@ -5,6 +5,7 @@ import NodeCache from "node-cache";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
+import Stripe from "stripe";
 dotenv.config({
   path: "./.env",
 });
@@ -31,7 +32,6 @@ import { productRouter } from "./routes/product.routes.js";
 import { orderRouter } from "./routes/order.routes.js";
 import { paymentRouter } from "./routes/payment.routes.js";
 import { statsRouter } from "./routes/stats.routes.js";
-import Stripe from "stripe";
 
 //route
 app.use("/api/v1/user", userRouter);

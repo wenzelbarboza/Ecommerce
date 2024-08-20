@@ -105,6 +105,7 @@ export const dashboardsStats = asyncHandler(async (req, res) => {
             quantity: true,
           },
         },
+        userId: true,
         discount: true,
         total: true,
         status: true,
@@ -155,11 +156,11 @@ export const dashboardsStats = asyncHandler(async (req, res) => {
 
     const thisMonthRewenue = thisMonthOrder.reduce(
       (acc, order) => acc + order.total,
-      0
+      0,
     );
     const lastMonthRewenue = lastMonthOrder.reduce(
       (acc, order) => acc + order.total,
-      0
+      0,
     );
 
     const revenue = allOrders.reduce((acc, order) => acc + order.total, 0);
@@ -177,11 +178,11 @@ export const dashboardsStats = asyncHandler(async (req, res) => {
     const growthData = {
       productGrowth: claculateGrowth(
         thisMonthProduct.length,
-        lastMonthProduct.length
+        lastMonthProduct.length,
       ),
       orderGrowth: claculateGrowth(
         thisMonthOrder.length,
-        lastMonthOrder.length
+        lastMonthOrder.length,
       ),
       userGrowth: claculateGrowth(thisMonthUser.length, lastMonthUser.length),
       revenueGrowth: claculateGrowth(thisMonthRewenue, lastMonthRewenue),
@@ -206,6 +207,7 @@ export const dashboardsStats = asyncHandler(async (req, res) => {
     //formating latestOrderList
     const formatedLatestOrderList = latestOrderList.map((order) => {
       return {
+        id: order.userId,
         quantity: order.orderDetails.length,
         discount: order.discount,
         total: order.total,
@@ -234,6 +236,7 @@ export const dashboardsStats = asyncHandler(async (req, res) => {
     data: stats,
   });
 });
+
 export const pieChart = asyncHandler(async (req, res) => {
   const key = `admin-pie-charts`;
   let charts = {};
@@ -299,18 +302,18 @@ export const pieChart = asyncHandler(async (req, res) => {
       inStock: allOrderCategories.length - outOfStockCount,
     };
 
-    const grossIncome = allOrders.map(
-      (item, acc) => acc + (item.total || 0),
-      0
+    const grossIncome = allOrders.reduce(
+      (acc, item) => acc + (item.total || 0),
+      0,
     );
-    const discount = allOrders.map(
-      (item, acc) => acc + (item.discount || 0),
-      0
+    const discount = allOrders.reduce(
+      (acc, item) => acc + (item.discount || 0),
+      0,
     );
-    const burn = allOrders.map((item, acc) => acc + (item.tax || 0), 0);
-    const productionCost = allOrders.map(
-      (item, acc) => acc + (item.shippingCharges || 0),
-      0
+    const burn = allOrders.reduce((acc, item) => acc + (item.tax || 0), 0);
+    const productionCost = allOrders.reduce(
+      (acc, item) => acc + (item.shippingCharges || 0),
+      0,
     );
 
     const marketingCost = Number(grossIncome) * 0.3;
@@ -349,7 +352,7 @@ export const pieChart = asyncHandler(async (req, res) => {
         teen: 0,
         audult: 0,
         old: 0,
-      }
+      },
     );
 
     const adminCount = users.reduce((acc, user) => {
@@ -382,6 +385,7 @@ export const pieChart = asyncHandler(async (req, res) => {
     data: charts,
   });
 });
+
 export const barChart = asyncHandler(async (req, res) => {
   const key = "adimin-bar-charts";
   let charts = {};

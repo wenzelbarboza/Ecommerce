@@ -7,7 +7,7 @@ import pkg from "validator";
 import { myCache } from "../index.js";
 import { error } from "console";
 import type { $Enums } from "@prisma/client";
-import { invlidateCache } from "../utils/features.js";
+import { invlidateCache, isValidNumber } from "../utils/features.js";
 const { isFloat } = pkg;
 
 const prisma = new PrismaClient();
@@ -117,16 +117,16 @@ export const newOrder = asyncHandler(
 
     if (!adressInfo && !addressId) {
       throw new ApiError(
-        "either address information or address Id is requires"
+        "either address information or address Id is requires",
       );
     }
 
-    //TODO: handle edgecase when discount is zero
-    // make discount optional
-    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxx", discount);
+    console.log("for discount", isFloat(String(discount)));
+    console.log("for shippingcharges", isFloat(String(shippingCharges)));
+    const isDiscountPresent = discount;
     if (
       !isFloat(String(discount)) ||
-      !shippingCharges ||
+      !isFloat(String(shippingCharges)) ||
       !subtotal ||
       !tax ||
       !total ||
@@ -137,20 +137,20 @@ export const newOrder = asyncHandler(
       !pinCode ||
       !state
     ) {
+      console.log("------------throwing error-----------");
       throw new ApiError("all fields are necessary ");
     }
 
-    //TODO: handle edgecase when discount is zero(2)
-    // make discount optional
     if (
-      !Number(discount) ||
-      !Number(shippingCharges) ||
-      !Number(subtotal) ||
-      !Number(tax) ||
-      !Number(total)
+      !isValidNumber(discount) ||
+      !isValidNumber(shippingCharges) ||
+      !isValidNumber(subtotal) ||
+      !isValidNumber(tax) ||
+      !isValidNumber(total) ||
+      !isValidNumber(pinCode)
     ) {
       throw new ApiError(
-        "discount, shippingCharges, subtotal, tax and total shoud be numbers"
+        "discount, shippingCharges, subtotal, tax, total and pincode shoud be numbers",
       );
     }
 
@@ -158,7 +158,11 @@ export const newOrder = asyncHandler(
 
     if (address) {
       const AdressResponse = await prisma.address.create({
-        data: adressInfo,
+        data: {
+          ...adressInfo,
+          userId,
+          pinCode: Number(pinCode),
+        },
       });
       localAddressId = AdressResponse.id;
     }
@@ -196,7 +200,7 @@ export const newOrder = asyncHandler(
       message: "order placed successfully",
       data: orderResponse,
     });
-  }
+  },
 );
 
 export const processOrder = asyncHandler(async (req: Request, res) => {
