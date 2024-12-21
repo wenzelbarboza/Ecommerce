@@ -32,10 +32,10 @@ export const createUser = asyncHandler(
     });
 
     if (checkUser) {
-      throw new ApiError(
-        "user already exists try different email or try logging in",
-        400
-      );
+      return res.status(200).json({
+        success: true,
+        data: checkUser,
+      });
     }
 
     const newUser = await prisma.user.create({
@@ -79,6 +79,8 @@ export const getUser = asyncHandler(async (req, res, next) => {
       id,
     },
   });
+
+  console.log("------------id is--------------:", id);
 
   if (!user) {
     throw new ApiError("user does not exis, provide valid id");
