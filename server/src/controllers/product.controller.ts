@@ -10,29 +10,49 @@ import { ApiError } from "../utils/apiError.js";
 import { rm } from "fs";
 import { myCache } from "../index.js";
 import { invlidateCache } from "../utils/features.js";
+import { supabase } from "../utils/supabase.js";
 
 const prisma = new PrismaClient();
+const superbase_url = process.env.SUPABASE_URL;
 
 export const newProduct = asyncHandler(
   async (req: Request<{}, {}, NewProductRequestBody>, res) => {
     let { category, name, price, stock } = req.body;
 
-    const photo = req.file;
+    // const photo = req.file;
 
-    if (!photo) {
-      throw new ApiError("photo is required", 400);
+    // if (!photo) {
+    //   throw new ApiError("photo is required", 400);
+    // }
+
+    // if (!category || !name || !price || !stock) {
+    //   rm(photo.path, (err) => {
+    //     if (err) {
+    //       console.log(err);
+    //     } else {
+    //       console.log("photo deleted successfully");
+    //     }
+    //   });
+    //   throw new ApiError("all the fields are necessary", 400);
+    // }
+
+    const files = req.files as Express.Multer.File[] | undefined;
+    let file: Express.Multer.File | undefined;
+
+    if (files && files.length) {
+      file = files[0];
     }
 
-    if (!category || !name || !price || !stock) {
-      rm(photo.path, (err) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log("photo deleted successfully");
-        }
-      });
-      throw new ApiError("all the fields are necessary", 400);
+    if (!file) {
+      throw new ApiError("required file is missing", 400);
     }
+    const split = file.originalname.split(".");
+    const ext = split[split.length - 1];
+    const random = Math.floor(Math.random() * 90000);
+    const fileName = `Ecom-uploads-${random}-${split[0]}.${ext}`;
+
+    // TODO
+    // change file name
 
     // check for numeric values
     if (Number(price) && Number(stock)) {
@@ -42,13 +62,22 @@ export const newProduct = asyncHandler(
       throw new ApiError("price and stock should be numeric values", 400);
     }
 
+    const url = `${superbase_url}/storage/v1/object/public/Ecom-uploads/${fileName}`;
+    const { data, error } = await supabase.storage
+      .from("Ecom-uploads")
+      .upload(fileName, file.buffer);
+
+    if (error) {
+      throw new ApiError(error.message || "error submitting application", 400);
+    }
+
     const newProduct = await prisma.product.create({
       data: {
         category: category.trim().toLocaleLowerCase(),
         name,
         price,
         stock,
-        photo: photo.path,
+        photo: url,
       },
     });
 
@@ -207,7 +236,14 @@ export const updateProduct = asyncHandler(
 
     console.log(req.body);
 
-    const photo = req.file;
+    const files = req.files as Express.Multer.File[] | undefined;
+    let file: Express.Multer.File | undefined;
+
+    if (files && files.length) {
+      file = files[0];
+    }
+
+    let supabaseRes;
 
     try {
       if (!req.params.id && Number(id)) {
@@ -241,11 +277,40 @@ export const updateProduct = asyncHandler(
       }
       if (category) product.category = category;
 
-      if (photo) {
-        rm(product.photo, () => {
-          console.log("old photo deleted");
-        });
-        product.photo = photo.path;
+      // delete the old photo
+      let fileName;
+      if (file) {
+        const { data, error } = await supabase.storage
+          .from("Ecom-uploads")
+          .remove([product.photo]);
+
+        if (error) {
+          console.error("Error deleting file:", error.message);
+          throw new ApiError(error.message || "Error deleting file", 400);
+        } else {
+          console.log("File deleted successfully:", data);
+        }
+
+        // upload new photo
+        const split = file.originalname.split(".");
+        const ext = split[split.length - 1];
+        const random = Math.floor(Math.random() * 90000);
+        fileName = `Ecom-uploads-${random}-${split[0]}.${ext}`;
+        const url = `${superbase_url}/storage/v1/object/public/Ecom-uploads/${fileName}`;
+        const { data: supaRes, error: resError } = await supabase.storage
+          .from("Ecom-uploads")
+          .upload(fileName, file.buffer);
+
+        supabaseRes = supaRes;
+
+        if (error) {
+          throw new ApiError(
+            error.message || "error submitting application",
+            400
+          );
+        }
+
+        product.photo = url;
       }
 
       const updatedProduct = await prisma.product.update({
@@ -271,11 +336,11 @@ export const updateProduct = asyncHandler(
         data: updatedProduct,
       });
     } catch (error) {
-      if (photo) {
-        rm(photo.path, () => {
-          console.log("request failed, photo deleted from storage");
-        });
-      }
+      // if (supabaseRes) {
+      //   rm(photo.path, () => {
+      //     console.log("request failed, photo deleted from storage");
+      //   });
+      // }
       throw new ApiError(error.message, error.status || 400);
     }
   }
