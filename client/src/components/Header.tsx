@@ -12,12 +12,10 @@ import { useUserStore } from "../zustand/userStore";
 import { signOut } from "firebase/auth";
 import { auth } from "../Firebase";
 
-const user = { _id: "", role: "admin" };
-
 const Header = () => {
   const userStore = useUserStore();
 
-  console.log("user  is: ", userStore.user);
+  console.log("user  is in local sotore: ", userStore.user);
 
   const handelSignOut = async () => {
     try {
@@ -54,7 +52,7 @@ const Header = () => {
                 <FaUser />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                {user?.role == "admin" && (
+                {userStore.user?.role == "ADMIN" && (
                   <DropdownMenuItem>
                     <Link to="/admin/dashboard">Admin</Link>
                   </DropdownMenuItem>
@@ -74,11 +72,11 @@ const Header = () => {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-            {user?._id ? (
+            {userStore.user?.id ? (
               <>
-                <button>
+                {/* <button>
                   <FaUser />
-                </button>
+                </button> */}
               </>
             ) : (
               <Link

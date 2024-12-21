@@ -121,7 +121,7 @@ const Search = () => {
           onChange={(e) => setSearch(e.target.value)}
           required
         />
-        <main className="grid grid-cols-4 gap-1 lg:gap-8 mt-4">
+        <main className="grid grid-cols-2 md:grid-cols-3 md:gap-4 lg:grid-cols-4 gap-4 lg:gap-4 mt-4">
           {searchLoading ? (
             <CardSkeletonLoader />
           ) : (

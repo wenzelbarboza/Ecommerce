@@ -1,4 +1,4 @@
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { Suspense, lazy, useEffect } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { auth } from "./Firebase";
@@ -41,10 +41,10 @@ const Stopwatch = lazy(() => import("./pages/admin/apps/stopwatch"));
 const Toss = lazy(() => import("./pages/admin/apps/toss"));
 const NewProduct = lazy(() => import("./pages/admin/management/newproduct"));
 const ProductManagement = lazy(
-  () => import("./pages/admin/management/productmanagement"),
+  () => import("./pages/admin/management/productmanagement")
 );
 const TransactionManagement = lazy(
-  () => import("./pages/admin/management/transactionmanagement"),
+  () => import("./pages/admin/management/transactionmanagement")
 );
 const Checkout = lazy(() => import("./pages/Checkout"));
 
@@ -54,7 +54,7 @@ function App() {
 
   const fetchUser = async (uid: string) => {
     const { data }: AxiosResponse<userResponseType> = await axios.get(
-      `${import.meta.env.VITE_SERVER_BASE_URL}/api/v1/user/${uid}`,
+      `${import.meta.env.VITE_SERVER_BASE_URL}/api/v1/user/${uid}`
     );
     // console.log("fetch user data:", data);
     return data.data;
@@ -65,6 +65,7 @@ function App() {
     onAuthStateChanged(auth, async (user) => {
       try {
         if (user) {
+          console.log("user exists:", user);
           const userData = await queryClient.fetchQuery({
             queryKey: ["user", user.uid],
             queryFn: () => fetchUser(user.uid),
@@ -120,47 +121,42 @@ function App() {
               <Route path="/order/:id" element={<OrderDeatils />} />
               <Route path="/pay" element={<Checkout />} />
             </Route>
-            {/* ADMIN routes */}
+          </Route>
+          {/* ADMIN routes */}
+
+          <Route
+            element={
+              <ProtectedRoute
+                isAuthenticated={userStore.user ? true : false}
+                adminRoute={true}
+                isAdmin={
+                  userStore.user?.role?.toLowerCase() == "admin" ? true : false
+                }
+              />
+            }
+          >
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/product" element={<Products />} />
+            <Route path="/admin/customer" element={<Customers />} />
+            <Route path="/admin/transaction" element={<Transaction />} />
+            {/* Charts */}
+            <Route path="/admin/chart/bar" element={<Barcharts />} />
+            <Route path="/admin/chart/pie" element={<Piecharts />} />
+            <Route path="/admin/chart/line" element={<Linecharts />} />
+            {/* Apps */}
+            <Route path="/admin/app/coupon" element={<Coupon />} />
+            <Route path="/admin/app/stopwatch" element={<Stopwatch />} />
+            <Route path="/admin/app/toss" element={<Toss />} />
+
+            {/* Management */}
+            <Route path="/admin/product/new" element={<NewProduct />} />
+
+            <Route path="/admin/product/:id" element={<ProductManagement />} />
 
             <Route
-              element={
-                <ProtectedRoute
-                  isAuthenticated={userStore.user ? true : false}
-                  adminRoute={true}
-                  isAdmin={
-                    userStore.user?.role?.toLowerCase() == "admin"
-                      ? true
-                      : false
-                  }
-                />
-              }
-            >
-              <Route path="/admin/dashboard" element={<Dashboard />} />
-              <Route path="/admin/product" element={<Products />} />
-              <Route path="/admin/customer" element={<Customers />} />
-              <Route path="/admin/transaction" element={<Transaction />} />
-              {/* Charts */}
-              <Route path="/admin/chart/bar" element={<Barcharts />} />
-              <Route path="/admin/chart/pie" element={<Piecharts />} />
-              <Route path="/admin/chart/line" element={<Linecharts />} />
-              {/* Apps */}
-              <Route path="/admin/app/coupon" element={<Coupon />} />
-              <Route path="/admin/app/stopwatch" element={<Stopwatch />} />
-              <Route path="/admin/app/toss" element={<Toss />} />
-
-              {/* Management */}
-              <Route path="/admin/product/new" element={<NewProduct />} />
-
-              <Route
-                path="/admin/product/:id"
-                element={<ProductManagement />}
-              />
-
-              <Route
-                path="/admin/transaction/:id"
-                element={<TransactionManagement />}
-              />
-            </Route>
+              path="/admin/transaction/:id"
+              element={<TransactionManagement />}
+            />
           </Route>
           <Route path="/*" element={<NotFound />} />
         </Routes>

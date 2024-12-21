@@ -14,7 +14,7 @@ import {
   RiDashboardFill,
   RiShoppingBag3Fill,
 } from "react-icons/ri";
-import { Link, Location, useLocation } from "react-router-dom";
+import { Link, Location, NavLink, useLocation } from "react-router-dom";
 import { IconType } from "react-icons";
 
 const AdminSidebar = () => {
@@ -59,7 +59,8 @@ const AdminSidebar = () => {
             : {}
         }
       >
-        <h2>Logo.</h2>
+        <NavLink to="/">logo 1</NavLink>
+        {/* <h2 onClick={handleLogoClick}>Logo.</h2> */}
         <DivOne location={location} />
         <DivTwo location={location} />
         <DivThree location={location} />

@@ -25,7 +25,8 @@ const ProductCard = ({
   console.log(photo);
 
   return (
-    <div className="flex justify-center ">
+    // <div className="flex justify-center ">
+    <div>
       <Card className="cursor-pointer" onClick={() => handler(id)}>
         <CardHeader>
           {/* <CardTitle>Card Title</CardTitle>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { Button } from "../components/ui/button";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -6,7 +6,9 @@ import { auth } from "../Firebase";
 // import { useLoginMutation, useloginMutationType } from "../redux/api/userApi";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { User } from "../types/types";
+import { User } from "../types/api.types";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const userMutation = useMutation({
@@ -17,6 +19,8 @@ const Login = () => {
       );
     },
   });
+
+  const navigate = useNavigate();
 
   const [date, setDate] = useState("");
   const [gender, setGender] = useState<string>("");
@@ -49,7 +53,9 @@ const Login = () => {
       // });
 
       console.log("login from the db:", userMutation.data);
-    } catch (error) {
+      navigate("/");
+    } catch (error: any) {
+      toast(error.message || "error could not login");
       console.log(error);
     }
   };
