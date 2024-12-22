@@ -32,11 +32,7 @@ const ProductCard = ({
           {/* <CardTitle>Card Title</CardTitle>
           <CardDescription>Card Description</CardDescription> */}
           <AspectRatio ratio={1 / 1}>
-            <img
-              src={`${import.meta.env.VITE_SERVER_BASE_URL}/${photo}`}
-              alt="Image"
-              className="rounded-md object-cover"
-            />
+            <img src={photo} alt="Image" className="rounded-md object-cover" />
           </AspectRatio>
         </CardHeader>
         <CardContent>

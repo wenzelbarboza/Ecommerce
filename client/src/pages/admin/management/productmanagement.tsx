@@ -218,14 +218,7 @@ const Productmanagement = () => {
                   <input type="file" onChange={changeImageHandler} />
                 </div>
 
-                {photoUpdate && (
-                  <img
-                    src={`${
-                      import.meta.env.VITE_SERVER_BASE_URL
-                    }/${photoUpdate}`}
-                    alt="New Image"
-                  />
-                )}
+                {photoUpdate && <img src={photoUpdate} alt="New Image" />}
                 <button type="submit">Update</button>
               </form>
             </article>

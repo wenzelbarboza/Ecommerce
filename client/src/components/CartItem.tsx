@@ -29,11 +29,7 @@ const CartItem = ({
     <div className="flex items-center px-4 ">
       <div className="flex items-center">
         <div className="w-24">
-          <img
-            className="max-h-full max-w-full"
-            src={`${import.meta.env.VITE_SERVER_BASE_URL}/${photo}`}
-            alt={name}
-          />
+          <img className="max-h-full max-w-full" src={photo} alt={name} />
         </div>
         <article className="text-sm flex flex-col ml-1">
           <Link to={`/product/${productId}`}>{name}</Link>
