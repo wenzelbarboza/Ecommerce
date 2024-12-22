@@ -79,6 +79,15 @@ function App() {
           console.log("this is user store: ", userStore);
         }
       } catch (error) {
+        // logout logic
+        if (user) {
+          try {
+            await signOut(auth);
+            userStore.setUser(null);
+          } catch (error) {
+            console.log(error);
+          }
+        }
         console.log(error);
       }
     });

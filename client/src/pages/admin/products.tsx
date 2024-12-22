@@ -55,12 +55,7 @@ const Products = () => {
       setRows(
         data.data.map((item) => {
           return {
-            photo: (
-              <img
-                src={`${import.meta.env.VITE_SERVER_BASE_URL}/${item.photo}`}
-                alt="Shoes"
-              />
-            ),
+            photo: <img src={item.photo} alt={item.name} />,
             name: item.name,
             price: item.price,
             stock: item.stock,

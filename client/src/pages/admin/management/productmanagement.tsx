@@ -13,6 +13,7 @@ import toast, { Toaster } from "react-hot-toast";
 
 const Productmanagement = () => {
   const { id: productId } = useParams();
+
   const user = useUserStore((state) => state.user);
   const {
     data,
@@ -38,6 +39,8 @@ const Productmanagement = () => {
     photo: "",
     category: "",
   };
+
+  console.log("fetched data: ", data);
 
   const [priceUpdate, setPriceUpdate] = useState<number>(price);
   const [stockUpdate, setStockUpdate] = useState<number>(stock);
@@ -154,10 +157,7 @@ const Productmanagement = () => {
           <>
             <section>
               <strong>ID - {productId}</strong>
-              <img
-                src={`${import.meta.env.VITE_SERVER_BASE_URL}/${photo}`}
-                alt="Product"
-              />
+              <img src={photo} alt="Product" />
               <p>{name}</p>
               {stock > 0 ? (
                 <span className="green">{stock} Available</span>
