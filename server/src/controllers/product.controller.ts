@@ -304,10 +304,7 @@ export const updateProduct = asyncHandler(
         supabaseRes = supaRes;
 
         if (error) {
-          throw new ApiError(
-            error.message || "error submitting application",
-            400
-          );
+          throw new ApiError(error.message || "Error uploading new photo", 400);
         }
 
         product.photo = url;
@@ -328,7 +325,11 @@ export const updateProduct = asyncHandler(
 
       // myCache.del("cached-latest");
 
-      await invlidateCache({ product: true, admin: true });
+      await invlidateCache({
+        product: true,
+        admin: true,
+        productId: String(id),
+      });
 
       return res.status(200).json({
         success: true,
