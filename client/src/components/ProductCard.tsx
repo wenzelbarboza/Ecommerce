@@ -32,7 +32,11 @@ const ProductCard = ({
           {/* <CardTitle>Card Title</CardTitle>
           <CardDescription>Card Description</CardDescription> */}
           <AspectRatio ratio={1 / 1}>
-            <img src={photo} alt="Image" className="rounded-md object-cover" />
+            <img
+              src={photo}
+              alt="Image"
+              className="rounded-md object-cover h-full w-full"
+            />
           </AspectRatio>
         </CardHeader>
         <CardContent>

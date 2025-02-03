@@ -58,16 +58,36 @@ const Home = () => {
   return (
     <div className="custom-container  ">
       <section className="w-full py-6">
-        <Carousel className="w-[90%] mx-auto">
+        <Carousel className="w-[90%] mx-auto h-52">
           <CarouselContent>
-            <CarouselItem>
-              <FaUser className="w-[100%] h-52 mx-auto bg-green-300" />
+            <CarouselItem className="h-52 bg-green-400 ">
+              {/* <FaUser className="w-[100%] h-52 mx-auto bg-green-300" /> */}
+              <div className="w-full h-full bg-purple-500">
+                <img
+                  className="h-full w-full object-cover"
+                  src="https://nnbwwoyabieqwquwxlts.supabase.co/storage/v1/object/public/Ecom-assets//camera_poster2.png"
+                />
+              </div>
             </CarouselItem>
-            <CarouselItem>
-              <FaUser className="w-[100%] h-52 mx-auto bg-green-300" />
+
+            <CarouselItem className="h-52 bg-green-400 ">
+              {/* <FaUser className="w-[100%] h-52 mx-auto bg-green-300" /> */}
+              <div className="w-full h-full bg-purple-500">
+                <img
+                  className="h-full w-full object-cover"
+                  src="https://nnbwwoyabieqwquwxlts.supabase.co/storage/v1/object/public/Ecom-assets//laptop_poster.png"
+                />
+              </div>
             </CarouselItem>
-            <CarouselItem>
-              <FaUser className="w-[100%] h-52 mx-auto bg-green-300" />
+
+            <CarouselItem className="h-52 bg-green-400 ">
+              {/* <FaUser className="w-[100%] h-52 mx-auto bg-green-300" /> */}
+              <div className="w-full h-full bg-purple-500">
+                <img
+                  className="h-full w-full object-cover"
+                  src="https://nnbwwoyabieqwquwxlts.supabase.co/storage/v1/object/public/Ecom-assets//mobile_poster1.png"
+                />
+              </div>
             </CarouselItem>
           </CarouselContent>
           <CarouselPrevious />
