@@ -15,6 +15,8 @@ console.log("batabse url is: ", process.env.MESSAGE);
 export const myCache = new NodeCache();
 const app = express();
 
+const allowedOrigin = process.env.ALLOWED_ORIGIN || "";
+
 const port = process.env.PORT || 3000;
 export const stripe = new Stripe(process.env.STRIPE_KEY);
 
@@ -25,6 +27,14 @@ app.use(express.urlencoded());
 app.use(cookieParser());
 app.use("/uploads", express.static("uploads"));
 app.use(morgan("dev"));
+app.use(
+  cors({
+    origin: allowedOrigin, // Specify your client origin
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // Allow cookies and credentials
+  })
+);
 
 //route imports
 import { userRouter } from "./routes/user.routes.js";
@@ -51,3 +61,5 @@ app.use(caltachAllError);
 app.listen(port, () => {
   console.log(`app listning at port ${port}`);
 });
+
+export default app;
